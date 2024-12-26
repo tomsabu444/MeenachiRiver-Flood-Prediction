@@ -1,0 +1,22 @@
+{
+  "name": "meenachil-river-website",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "start:frontend": "npm --prefix frontend run dev",
+    "start:backend": "npm --prefix server run dev",
+    "ci:all": "npm ci --prefix frontend && npm ci --prefix server",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:backend": "echo \"No backend build step needed\"",
+    "deploy": "npm ci --prefix server && pm2 restart mrrm"
+  },
+  "keywords": [],
+  "author": "Tom , Jishnu , Navaneeth , Justin",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
