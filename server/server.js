@@ -13,9 +13,8 @@ app.use(express.json());
 
 connectDB(); //! Initialize MongoDB connection
 
-app.get("/", (req, res) => {
-    res.send("<h1> MRRM || MainProject Final Year </h1>");
-  });
+//! Routes for declared endpoints
+app.use("/", require("./routes/health")); //? Test route to check if the server is running
   
   app.listen(port, () =>
     console.log(`Server is running on port  http://localhost:${port}`)
