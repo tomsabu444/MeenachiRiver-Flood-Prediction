@@ -15,7 +15,8 @@ connectDB(); //! Initialize MongoDB connection
 
 //! Routes for declared endpoints
 app.use("/", require("./routes/health")); //? Test route to check if the server is running
-  
+app.use("/floodData", require("./routes/floodDataRoute")); //? Route to fetch flood data dynamically based on collection name
+
   app.listen(port, () =>
     console.log(`Server is running on port  http://localhost:${port}`)
   );
