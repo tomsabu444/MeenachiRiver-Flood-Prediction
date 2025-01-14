@@ -5,43 +5,92 @@ on:
     branches:
       - deploy  # Trigger on pushes to the deploy branch
 
-jobs: 
+jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     # Step 1: Checkout the repository
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Node.js
+    # Step 2: Set up Node.js with caching
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 20
+        cache: 'npm'
 
-    # Step 3: Install dependencies for both frontend and backend
-    - name: Install dependencies
-      run: |
-        npm ci --prefix frontend
-        npm ci --prefix server
-
-    # Step 4: Build frontend
-    - name: Build frontend
-      run: npm run build:frontend
-
-    # Step 5: Set up SSH for deployment
+    # Step 3: Set up SSH for deployment
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    # Step 6: Deploy to AWS 
-    - name: Deploy
+    # Step 4: Deploy code and run tasks on the server
+    - name: Deploy to Server
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-        cd /var/www/mrrm
-        git pull origin deploy
-        npm run deploy
-        sudo systemctl restart nginx
+        set -e  # Stop execution on error
+
+        echo "Switching to application directory..."
+        cd /var/www/mrrm || { echo "Directory not found"; exit 1; }
+
+        echo "Stashing uncommitted changes..."
+        git stash || echo "Nothing to stash"
+
+        echo "Pulling latest changes from the repository..."
+        git fetch origin deploy
+        git reset --hard origin/deploy
+
+        echo "Installing dependencies..."
+        npm ci --prefix frontend
+        npm ci --prefix server
+
+        echo "Building the frontend for production..."
+        npm run build:frontend --if-present
+
+        echo "Deploying and restarting services..."
+        npm run deploy --if-present
+
+        echo "Restarting Nginx..."
+        sudo systemctl restart nginx || { echo "Failed to restart Nginx"; exit 1; }
+
+        echo "Clearing old caches..."
+        sudo npm cache clean --force
+
+        echo "Deployment completed successfully!"
         EOF
+
+    # Step 5: Notify team on Discord
+    - name: Notify team on Discord
+      if: always()
+      run: |
+        DEPLOY_STATUS="success"
+        if [ "${{ job.status }}" != "success" ]; then
+          DEPLOY_STATUS="failure"
+        fi
+        curl -H "Content-Type: application/json" \
+          -d '{
+                "username": "Deployment Bot",
+                "avatar_url": "https://i.imgur.com/4M34hi2.png",
+                "embeds": [{
+                  "title": "Deployment Status",
+                  "description": "Deployment to production **'${DEPLOY_STATUS}'**",
+                  "color": '${{ job.status == "success" && "3066993" || "15158332" }}',
+                  "fields": [
+                    {
+                      "name": "Branch",
+                      "value": "${{ github.ref }}",
+                      "inline": true
+                    },
+                    {
+                      "name": "Commit",
+                      "value": "${{ github.sha }}",
+                      "inline": true
+                    }
+                  ],
+                  "timestamp": "'$(date --iso-8601=seconds)'"
+                }]
+              }' \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
