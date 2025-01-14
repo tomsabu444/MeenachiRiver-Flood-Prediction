@@ -11,7 +11,7 @@
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "npm --prefix frontend run build",
     "build:backend": "echo \"No backend build step needed\"",
-    "deploy": "npm ci --prefix server && pm2 restart mrrm"
+    "deploy": "npm ci --prefix server && pm2 restart mrrm-api"
   },
   "keywords": [],
   "author": "Tom , Jishnu , Navaneeth , Justin",
