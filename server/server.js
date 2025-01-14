@@ -1,7 +1,7 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cros = require("cors");
 const connectDB = require("./config/databaseConnect");
+const NodeAuthenticate = require("./middleware/NodeAuthenticate");
 require("dotenv").config();
 
 
@@ -15,7 +15,7 @@ connectDB(); //! Initialize MongoDB connection
 
 //! Routes for declared endpoints
 app.use("/", require("./routes/health")); //? Test route to check if the server is running
-app.use("/floodData", require("./routes/floodDataRoute")); //? Route to fetch flood data dynamically based on collection name
+app.use("/v1/node-data/add",NodeAuthenticate, require("./routes/nodeEndpoint")); //? Route to receive data from IoT nodes
 
   app.listen(port, () =>
     console.log(`Server is running on port  http://localhost:${port}`)
