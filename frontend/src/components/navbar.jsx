@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <AppBar position="static" style={{ backgroundColor: "#000000" }}>
+    <AppBar position="fixed"  style={{ backgroundColor: "#111827" }}>
       <Toolbar className="flex justify-between">
         {/* Left Section */}
         <div className="flex items-center">
@@ -19,7 +19,7 @@ const Navbar = () => {
         {/* Right Section */}
         <div className="flex items-center">
           <Link to="/about-us"
-            className="text-white font-semibold cursor-pointer transform transition-transform duration-300 hover:scale-110 hover:text-blue-400"
+            className="text-white text-lg font-semibold cursor-pointer transform transition-transform duration-300 hover:scale-110 hover:text-blue-400"
           >
             About Us
           </Link>
