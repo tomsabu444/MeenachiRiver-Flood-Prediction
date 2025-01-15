@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./page/HomePage";
 import AboutUs from "./page/AboutUs";
 import Navbar from "./components/navbar";
-import Layout from "./components/layout";
+import Layout from "./components/Layout";
 function App() {
   return (
     <BrowserRouter>
