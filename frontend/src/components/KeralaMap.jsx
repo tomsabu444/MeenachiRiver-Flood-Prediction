@@ -18,53 +18,76 @@ const KeralaMap = () => {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
-    const dams = [
-      // { name: "Dam 1", latitude: 9.85, longitude: 77.05, storagePercentage: 60 },
-      // { name: "Dam 2", latitude: 10.15, longitude: 76.95, storagePercentage: 80 },
+    // Water Level Monitoring Points
+    const waterLevelPoints = [
+      { name: "Station 1", latitude: 9.85, longitude: 77.05, waterLevel: 15 },
+      { name: "Station 2", latitude: 9.675, longitude: 76.60278, waterLevel: 10 },
+      { name: "Station 3", latitude: 9.672320, longitude:  76.800154, waterLevel: 90 },
     ];
 
     const markers = L.layerGroup().addTo(map);
 
-    dams.forEach((dam) => {
-      const marker = L.marker([dam.latitude, dam.longitude], {
-        icon: L.divIcon({
-          className: "water-level-icon",
-          html: `
-            <div class="w-10 h-10 rounded-full bg-white border border-gray-300 flex items-end justify-center">
-              <div class="w-full bg-blue-500 rounded-b-md" style="height: ${dam.storagePercentage}%;"></div>
-            </div>
-          `,
-        }),
-      }).on("click", () => alert(`Clicked on ${dam.name}`));
-
-      markers.addLayer(marker);
-    });
-
-    const getWaterLevelColor = (percentage) => {
-      if (percentage < 20) return "bg-green-200";
-      if (percentage < 40) return "bg-green-400";
-      if (percentage < 60) return "bg-yellow-400";
-      if (percentage < 80) return "bg-orange-400";
-      return "bg-red-500";
+    // Helper function to get color based on water level
+    const getWarningColor = (level) => {
+      if (level <= 20) return "green";
+      if (level <= 40) return "darkgreen";
+      if (level <= 60) return "yellow";
+      if (level <= 80) return "orange";
+      return "red";
     };
 
-    const legend = L.control({ position: "topright" });
-    legend.onAdd = () => {
-      const div = L.DomUtil.create("div", "legend p-4 bg-white shadow-md rounded-md text-sm");
-      div.innerHTML = `
-        <h4 class="font-bold text-gray-700 mb-2">Water Level Scale</h4>
-        <div class="space-y-1">
-          <div class="flex items-center"><span class="block w-4 h-4 bg-green-200 border border-gray-300 mr-2"></span> 0-20%</div>
-          <div class="flex items-center"><span class="block w-4 h-4 bg-green-400 border border-gray-300 mr-2"></span> 21-40%</div>
-          <div class="flex items-center"><span class="block w-4 h-4 bg-yellow-400 border border-gray-300 mr-2"></span> 41-60%</div>
-          <div class="flex items-center"><span class="block w-4 h-4 bg-orange-400 border border-gray-300 mr-2"></span> 61-80%</div>
-          <div class="flex items-center"><span class="block w-4 h-4 bg-red-500 border border-gray-300 mr-2"></span> 81-100%</div>
+    // Add circular markers with water level displayed
+    waterLevelPoints.forEach((point) => {
+      const marker = L.circleMarker([point.latitude, point.longitude], {
+        radius: 15,
+        color: "black",
+        weight: 1,
+        fillColor: getWarningColor(point.waterLevel),
+        fillOpacity: 0.8,
+      }).addTo(map);
+
+      // Add text inside the circle
+      const iconHtml = `
+        <div style="position: relative; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; background-color: ${getWarningColor(
+          point.waterLevel
+        )}; border-radius: 50%; font-size: 12px; color: white; font-weight: bold;">
+          ${point.waterLevel}%
         </div>
       `;
-      return div;
-    };
-    legend.addTo(map);
+      const textIcon = L.divIcon({
+        className: "",
+        html: iconHtml,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      });
 
+      L.marker([point.latitude, point.longitude], { icon: textIcon }).addTo(markers);
+
+      // Add a click event to display more information
+      marker.on("click", () => {
+        alert(`Station: ${point.name}\nWater Level: ${point.waterLevel}%`);
+      });
+    });
+
+    // Add legend for water level warnings
+    // const legend = L.control({ position: "topright" });
+    // legend.onAdd = () => {
+    //   const div = L.DomUtil.create("div", "legend p-4 bg-white shadow-md rounded-md text-sm");
+    //   div.innerHTML = `
+    //     <h4 class="font-bold text-gray-700 mb-2">Water Level Warning</h4>
+    //     <div class="space-y-1">
+    //       <div class="flex items-center"><span class="block w-4 h-4 bg-green-500 border border-gray-300 mr-2"></span> 0-20% (Safe)</div>
+    //       <div class="flex items-center"><span class="block w-4 h-4 bg-green-700 border border-gray-300 mr-2"></span> 21-40% (Low Warning)</div>
+    //       <div class="flex items-center"><span class="block w-4 h-4 bg-yellow-400 border border-gray-300 mr-2"></span> 41-60% (Moderate Warning)</div>
+    //       <div class="flex items-center"><span class="block w-4 h-4 bg-orange-500 border border-gray-300 mr-2"></span> 61-80% (High Warning)</div>
+    //       <div class="flex items-center"><span class="block w-4 h-4 bg-red-500 border border-gray-300 mr-2"></span> 81-100% (Critical)</div>
+    //     </div>
+    //   `;
+    //   return div;
+    // };
+    // legend.addTo(map);
+
+    // Cleanup map on component unmount
     return () => {
       map.remove();
     };
