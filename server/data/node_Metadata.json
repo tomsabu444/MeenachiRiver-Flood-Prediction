@@ -1,0 +1,13 @@
+[
+  {
+    "nodeId": "kidangoor-001",
+    "locationName": "Kidangoor",
+    "latitude": 9.675,
+    "longitude": 76.60278,
+    "alertWaterLevel": 8.24,
+    "otherMetadata": {
+      "type": null,
+      "description": null
+    }
+  }
+]
