@@ -1,7 +1,10 @@
 import React from "react";
+import KeralaMap from "../components/KeralaMap";
 function HomePage() {
   return (
-    <h1>hello</h1>
+    <>
+    <KeralaMap/>
+    </>
   );
 }
 
