@@ -4,6 +4,7 @@ import HomePage from "./page/HomePage";
 import AboutUs from "./page/AboutUs";
 import Navbar from "./components/navbar";
 import Layout from "./components/layout";
+import Detail from "./components/Detail";
 function App() {
   return (
     <BrowserRouter>
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
         </Route>
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/poonjar" element={<Detail />} />
       </Routes>
     </BrowserRouter>
   );
