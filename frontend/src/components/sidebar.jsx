@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { SERVER_BASE_URL } from "../config/Backend_URL";
 
 const Sidebar = () => {
   const [nodeMetadata, setNodeMetadata] = useState([]);
@@ -22,7 +23,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchNodeMetadata = async () => {
       try {
-        const response = await axios.get("http://localhost:5273/v1/node-metadata");
+        const response = await axios.get(`${SERVER_BASE_URL}/v1/node-metadata`);
         if (response.data.success) {
           const formattedData = response.data.data.map((node) => {
             const badgeStyle = getBadgeStyle(
