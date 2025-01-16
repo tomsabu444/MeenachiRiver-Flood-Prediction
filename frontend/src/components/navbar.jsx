@@ -8,12 +8,14 @@ const Navbar = () => {
       <Toolbar className="flex justify-between">
         {/* Left Section */}
         <div className="flex items-center">
+          <Link to="/">
           <Typography
             variant="h6"
             className="text-white font-inter font-extrabold text-xl tracking-wide"
-          >
+            >
             Meenachil River Rain Monitoring System
           </Typography>
+            </Link>
         </div>
 
         {/* Right Section */}
