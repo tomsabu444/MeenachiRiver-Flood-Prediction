@@ -164,7 +164,7 @@ const Detail = () => {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
+      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 8 }}>
         <Container maxWidth="lg">
           <Box sx={{ 
             mb: 4, 
