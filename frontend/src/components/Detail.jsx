@@ -63,9 +63,9 @@ const Detail = () => {
             });
           } else {
             // Prepare chart data
-            // Prepare chart data
+            const reversedData = [...data].reverse(); 
             const formattedChartData = {
-              labels: data.map((entry) =>
+              labels: reversedData.map((entry) =>
                 new Date(entry.timestamp).toLocaleString("en-US", {
                   timeZone: "Asia/Kolkata", // UTC+5:30
                   hour: "2-digit",
@@ -80,7 +80,7 @@ const Detail = () => {
               datasets: [
                 {
                   label: "Water Level (m)",
-                  data: data.map((entry) => entry.waterLevel),
+                  data:  reversedData.map((entry) => entry.waterLevel),
                   borderColor: "#06b6d4",
                   backgroundColor: "rgba(6, 182, 212, 0.2)",
                   borderWidth: 2,
@@ -121,7 +121,7 @@ const Detail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-6">
+    <div className="min-h-screen bg-slate-700 text-white p-6 font-roboto">
       <div className="max-w-[1500px] mx-auto space-y-6">
         <h1 className="text-3xl font-bold border-b pb-2">
           {nodeData.locationName}
@@ -154,15 +154,15 @@ const Detail = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-zinc-400">Yellow Alert Level:</span>
-                <span>{nodeData.yellow_alert} m</span>
+                <span>{nodeData.yellow_alert} ft</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Orange Alert Level:</span>
-                <span>{nodeData.orange_alert} m</span>
+                <span>{nodeData.orange_alert} ft</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Red Alert Level:</span>
-                <span>{nodeData.red_alert} m</span>
+                <span>{nodeData.red_alert} ft</span>
               </div>
             </div>
           </div>

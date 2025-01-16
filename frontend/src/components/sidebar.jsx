@@ -102,9 +102,9 @@ const Sidebar = () => {
                     </p>
                   </div>
                   <div
-                    className={`text-xs font-bold py-1 px-3 rounded-full min-w-[60px] text-center ${node.badgeClass}`}
+                    className={`text-xs font-bold py-1 px-2 rounded-full min-w-[60px] text-center ${node.badgeClass}`}
                   >
-                    ALERT
+                    {/* ALERT */}
                   </div>
                 </div>
               </div>
