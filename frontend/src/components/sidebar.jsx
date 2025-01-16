@@ -1,7 +1,7 @@
 import React from "react";
 
 const Sidebar = () => {
-  const dams = [
+  const node_Location = [
     { name: "Pala", percentage: "100.02%", alert: "ALERT", color: "red-badge" },
     { name: "Kidangoor", percentage: "90.65%", alert: "ALERT", color: "orange-badge" },
     { name: "Poonjar", percentage: "88.95%", alert: "ALERT", color: "orange-badge" },
@@ -20,7 +20,7 @@ const Sidebar = () => {
         Sort by Storage Percentage
       </button>
       <div id="damList" className="space-y-4">
-        {dams.map((dam, index) => (
+        {node_Location.map((dam, index) => (
           <div key={index} className="dam-item bg-gray-800 rounded-lg p-4 shadow-md transition hover:shadow-lg">
             <div className="relative flex justify-between items-center">
               <div>

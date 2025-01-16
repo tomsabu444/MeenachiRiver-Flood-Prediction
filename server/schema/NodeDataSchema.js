@@ -11,15 +11,10 @@ const IotNodeDataSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    timestamp: {
-      type: Date,
-      default: Date.now,
-      index: true,
-    },
   },
   {
     timestamps: {
-      createdAt: true,
+      createdAt: 'timestamp', // Use `timestamp` as the name for `createdAt`
       updatedAt: false, // Disable `updatedAt`
     },
   }
