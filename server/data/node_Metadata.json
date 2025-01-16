@@ -1,10 +1,25 @@
 [
   {
     "nodeId": "kidangoor-001",
-    "locationName": "Kidangoor",
+    "locationName": "KIDANGOOR",
     "latitude": 9.675,
     "longitude": 76.60278,
-    "alertWaterLevel": 8.24,
+    "yellow_alert": 6,
+    "orange_alert": 7,
+    "red_alert": 8.75,
+    "otherMetadata": {
+      "type": null,
+      "description": "Southern Western River Division(SWRD), Kochi"
+    }
+  },
+  {
+    "nodeId": "poonjar-001",
+    "locationName": "Poonjar",
+    "latitude": 9.672320,
+    "longitude": 76.800154,
+    "yellow_alert": 4,
+    "orange_alert": 6,
+    "red_alert": 10,
     "otherMetadata": {
       "type": null,
       "description": null
