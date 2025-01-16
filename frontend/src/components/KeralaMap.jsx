@@ -70,22 +70,21 @@ const KeralaMap = () => {
     });
 
     // Add legend for water level warnings
-    // const legend = L.control({ position: "topright" });
-    // legend.onAdd = () => {
-    //   const div = L.DomUtil.create("div", "legend p-4 bg-white shadow-md rounded-md text-sm");
-    //   div.innerHTML = `
-    //     <h4 class="font-bold text-gray-700 mb-2">Water Level Warning</h4>
-    //     <div class="space-y-1">
-    //       <div class="flex items-center"><span class="block w-4 h-4 bg-green-500 border border-gray-300 mr-2"></span> 0-20% (Safe)</div>
-    //       <div class="flex items-center"><span class="block w-4 h-4 bg-green-700 border border-gray-300 mr-2"></span> 21-40% (Low Warning)</div>
-    //       <div class="flex items-center"><span class="block w-4 h-4 bg-yellow-400 border border-gray-300 mr-2"></span> 41-60% (Moderate Warning)</div>
-    //       <div class="flex items-center"><span class="block w-4 h-4 bg-orange-500 border border-gray-300 mr-2"></span> 61-80% (High Warning)</div>
-    //       <div class="flex items-center"><span class="block w-4 h-4 bg-red-500 border border-gray-300 mr-2"></span> 81-100% (Critical)</div>
-    //     </div>
-    //   `;
-    //   return div;
-    // };
-    // legend.addTo(map);
+    const legend = L.control({ position: "topright" });
+    legend.onAdd = () => {
+      const div = L.DomUtil.create("div", "legend p-4 bg-white shadow-md rounded-md text-sm");
+      div.innerHTML = `
+        <h4 class="font-bold text-gray-700 mb-2">Water Level Warning</h4>
+        <div class="space-y-1">
+          <div class="flex items-center"><span class="block w-4 h-4 bg-green-600 border border-gray-300 mr-2"></span> Safe</div>
+          <div class="flex items-center"><span class="block w-4 h-4 bg-yellow-400 border border-gray-300 mr-2"></span> Moderate Warning</div>
+          <div class="flex items-center"><span class="block w-4 h-4 bg-orange-500 border border-gray-300 mr-2"></span> High Warning</div>
+          <div class="flex items-center"><span class="block w-4 h-4 bg-red-500 border border-gray-300 mr-2"></span> Critical HFL</div>
+        </div>
+      `;
+      return div;
+    };
+    legend.addTo(map);
 
     // Cleanup map on component unmount
     return () => {
