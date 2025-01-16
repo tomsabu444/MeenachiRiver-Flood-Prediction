@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import axios from "axios";
-import { SERVER_BASE_URL } from "../config/Backend_URL";
+import useApiCalls from "../hooks/useApiCalls";
 
 const KeralaMap = () => {
   const [waterLevelPoints, setWaterLevelPoints] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { fetchNodeMetaData, loading } = useApiCalls();
 
   useEffect(() => {
-    // Fetch data from API
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${SERVER_BASE_URL}/v1/node-metadata`);
-        if (response.data.success) {
-          const points = response.data.data.map((node) => ({
+        const data = await fetchNodeMetaData();
+        if (data.success) {
+          const points = data.data.map((node) => ({
             name: node.locationName,
             latitude: node.latitude,
             longitude: node.longitude,
@@ -30,13 +28,11 @@ const KeralaMap = () => {
         }
       } catch (err) {
         setError("An error occurred while fetching data.");
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [fetchNodeMetaData]);
 
   useEffect(() => {
     if (loading || error) return;

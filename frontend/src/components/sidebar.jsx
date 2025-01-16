@@ -1,31 +1,29 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { SERVER_BASE_URL } from "../config/Backend_URL";
+import useApiCalls from "../hooks/useApiCalls";
 
 const Sidebar = () => {
+  const { fetchNodeMetaData, loading } = useApiCalls();
   const [nodeMetadata, setNodeMetadata] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Function to determine the badge color based on thresholds
   const getBadgeStyle = (level, yellowAlert, orangeAlert, redAlert) => {
     if (level < yellowAlert) {
-      return { backgroundColor: "green", color: "white" }; // Safe level
+      return { backgroundColor: "green", color: "white" };
     } else if (level < orangeAlert) {
-      return { backgroundColor: "yellow", color: "black" }; // Yellow alert
+      return { backgroundColor: "yellow", color: "black" };
     } else if (level < redAlert) {
-      return { backgroundColor: "orange", color: "white" }; // Orange alert
+      return { backgroundColor: "orange", color: "white" };
     } else {
-      return { backgroundColor: "red", color: "white" }; // Red alert
+      return { backgroundColor: "red", color: "white" };
     }
   };
 
   useEffect(() => {
-    const fetchNodeMetadata = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${SERVER_BASE_URL}/v1/node-metadata`);
-        if (response.data.success) {
-          const formattedData = response.data.data.map((node) => {
+        const data = await fetchNodeMetaData();
+        if (data.success) {
+          const formattedData = data.data.map((node) => {
             const badgeStyle = getBadgeStyle(
               node.latest_water_level,
               node.yellow_alert,
@@ -44,13 +42,11 @@ const Sidebar = () => {
         }
       } catch (err) {
         setError("An error occurred while fetching data.");
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchNodeMetadata();
-  }, []);
+    fetchData();
+  }, [fetchNodeMetaData]);
 
   if (loading) {
     return <div className="text-white p-4">Loading...</div>;
