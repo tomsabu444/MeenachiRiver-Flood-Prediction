@@ -1,90 +1,118 @@
 import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import useApiCalls from "../hooks/useApiCalls";
 
 const Sidebar = () => {
   const { fetchNodeMetaData, loading } = useApiCalls();
   const [nodeMetadata, setNodeMetadata] = useState([]);
   const [error, setError] = useState(null);
+  const location = useLocation();
 
   const getBadgeStyle = (level, yellowAlert, orangeAlert, redAlert) => {
     if (level < yellowAlert) {
-      return { backgroundColor: "green", color: "white" };
+      return "bg-green-500 text-white";
     } else if (level < orangeAlert) {
-      return { backgroundColor: "yellow", color: "black" };
+      return "bg-yellow-400 text-black";
     } else if (level < redAlert) {
-      return { backgroundColor: "orange", color: "white" };
-    } else {
-      return { backgroundColor: "red", color: "white" };
+      return "bg-orange-500 text-white";
     }
+    return "bg-red-500 text-white";
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
         const data = await fetchNodeMetaData();
+        if (!isMounted) return;
+
         if (data.success) {
-          const formattedData = data.data.map((node) => {
-            const badgeStyle = getBadgeStyle(
+          const formattedData = data.data.map((node) => ({
+            name: node.locationName,
+            waterLevel: `${node.latest_water_level.toFixed(2)} ft`,
+            badgeClass: getBadgeStyle(
               node.latest_water_level,
               node.yellow_alert,
               node.orange_alert,
               node.red_alert
-            );
-            return {
-              name: node.locationName,
-              waterLevel: `${node.latest_water_level.toFixed(2)} ft`,
-              badgeStyle,
-            };
-          });
+            ),
+            slug: node.locationName.toLowerCase().replace(/\s+/g, '-')
+          }));
           setNodeMetadata(formattedData);
         } else {
           setError("Failed to fetch data.");
         }
       } catch (err) {
-        setError("An error occurred while fetching data.");
+        if (isMounted) {
+          setError("An error occurred while fetching data.");
+        }
       }
     };
 
     fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [fetchNodeMetaData]);
 
   if (loading) {
-    return <div className="text-white p-4">Loading...</div>;
+    return (
+      <div className="w-full md:w-80 bg-gray-900 p-4">
+        <div className="text-white animate-pulse">Loading...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
+    return (
+      <div className="w-full md:w-80 bg-gray-900 p-4">
+        <div className="text-red-500 bg-red-100 p-3 rounded-md">{error}</div>
+      </div>
+    );
   }
 
   return (
-    <div id="sidebar" className="w-full md:w-80 bg-gray-900 text-white p-4 md:max-h-screen font-roboto">
-      <h1 className="text-xl font-bold text-center text-gradient-to-r from-blue-400 to-purple-600 mb-4">
+    <aside className="w-full md:w-80 bg-gray-900 text-white p-4 md:max-h-screen font-roboto overflow-y-auto">
+      <h1 className="text-xl font-bold text-center bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-4">
         Locations
       </h1>
-      <div id="nodeList" className="space-y-4">
-        {nodeMetadata.map((node, index) => (
-          <div key={index} className="node-item bg-gray-800 rounded-lg p-4 shadow-md transition hover:shadow-lg">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-semibold text-white">{node.name}</h3>
-                <p className="text-sm text-gray-400">Water Level: {node.waterLevel}</p>
+      <nav className="space-y-4">
+        {nodeMetadata.map((node) => {
+          const path = `/${node.slug}`;
+          const isActive = location.pathname === path;
+          
+          return (
+            <Link
+              to={path}
+              key={node.slug}
+              className={`block transition duration-200 ${
+                isActive ? 'ring-2 ring-blue-500' : ''
+              }`}
+            >
+              <div className="node-item bg-gray-800 rounded-lg p-4 shadow-md hover:bg-gray-700 transition-all duration-200">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">
+                      {node.name}
+                    </h3>
+                    <p className="text-sm text-gray-400">
+                      Water Level: {node.waterLevel}
+                    </p>
+                  </div>
+                  <div
+                    className={`text-xs font-bold py-1 px-3 rounded-full min-w-[60px] text-center ${node.badgeClass}`}
+                  >
+                    ALERT
+                  </div>
+                </div>
               </div>
-              <div
-                className="text-xs font-bold py-1 px-3 rounded-full"
-                style={{
-                  ...node.badgeStyle,
-                  display: "inline-block",
-                  textAlign: "center",
-                  minWidth: "60px",
-                }}
-              >
-                ALERT
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+            </Link>
+          );
+        })}
+      </nav>
+    </aside>
   );
 };
 

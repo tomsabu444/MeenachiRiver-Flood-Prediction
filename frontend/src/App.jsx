@@ -12,7 +12,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/poonjar" element={<Detail />} />
+          <Route path="/:nodeId" element={<Detail />} />
         </Route>
           <Route path="/about-us" element={<AboutUs />} />
       </Routes>

@@ -1,283 +1,164 @@
 import React from 'react';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Line } from 'react-chartjs-2';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Container,
-  Chip,
-  Divider,
-  Paper,
-  useTheme
-} from '@mui/material';
-import {
-  Warning,
-  LocationOn,
-  ArrowUpward,
-  ArrowDownward,
-  Cloud,
-  Air,
-  Thermostat,
-  Opacity
-} from '@mui/icons-material';
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#90caf9',
-    },
-    secondary: {
-      main: '#f48fb1',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1e1e1e',
-    },
-    error: {
-      main: '#f44336',
-      dark: '#2c1212',
-    },
-    warning: {
-      main: '#ffa726',
-      dark: '#2c1810',
-    },
-    success: {
-      main: '#66bb6a',
-      dark: '#0f2312',
-    },
-  },
-  typography: {
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 600,
-    },
-    h2: {
-      fontSize: '2rem',
-      fontWeight: 600,
-    },
-    h6: {
-      fontWeight: 600,
-    },
-  },
-  components: {
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          backgroundImage: 'none',
-          boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.3)',
-        },
-      },
-    },
-    MuiChip: {
-      styleOverrides: {
-        root: {
-          height: 28,
-        },
-      },
-    },
-  },
-});
+// Register Chart.js modules
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const DataCard = ({ title, children }) => (
-  <Card sx={{ height: '100%', backgroundColor: 'background.paper' }}>
-    <CardContent>
-      <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-        {title}
-      </Typography>
-      {children}
-    </CardContent>
-  </Card>
-);
-
-const DataRow = ({ icon: Icon, label, value }) => (
-  <Box sx={{ mb: 3, '&:last-child': { mb: 0 } }}>
-    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-      {Icon && <Icon sx={{ mr: 1, fontSize: 20, color: 'text.secondary' }} />}
-      <Typography color="text.secondary" variant="body2">
-        {label}
-      </Typography>
-    </Box>
-    <Typography variant="body1" sx={{ ml: Icon ? 3.5 : 0 }}>
-      {value}
-    </Typography>
-  </Box>
-);
-
-const AlertLevel = ({ color, label, value }) => {
-  const theme = useTheme();
-  
-  return (
-    <Paper 
-      elevation={0} 
-      sx={{ 
-        p: 2.5, 
-        mb: 2, 
-        backgroundColor: `${color}.dark`,
-        border: 1,
-        borderColor: `${color}.main`,
-        borderRadius: 2,
-        '&:last-child': { mb: 0 }
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-        <Warning sx={{ fontSize: 20, mr: 1 }} />
-        <Typography variant="body2">
-          {label}
-        </Typography>
-      </Box>
-      <Typography variant="h6" sx={{ ml: 3.5 }}>
-        {value} feet
-      </Typography>
-    </Paper>
-  );
-};
+const data = [
+  { date: '09.12.2024', level: 1207.0 },
+  { date: '12.12.2024', level: 1207.1 },
+  { date: '15.12.2024', level: 1207.2 },
+  { date: '18.12.2024', level: 1207.0 },
+];
 
 const Detail = () => {
-  const data = {
-    name: "POONJAR",
-    waterLevel: 4.2,
-    previousLevel: 3.8,
-    rainfall: 12.5,
-    windSpeed: 15.3,
-    humidity: 75,
-    temperature: 28.5,
-    latitude: 9.675,
-    longitude: 76.60278,
-    alerts: {
-      green: 4,
-      yellow: 6,
-      warning: 7,
-      red: 8.75
-    },
-    status: "Normal"
+  // Prepare data for Chart.js
+  const chartData = {
+    labels: data.map((entry) => entry.date),
+    datasets: [
+      {
+        label: 'Water Level (m)',
+        data: data.map((entry) => entry.level),
+        borderColor: '#06b6d4',
+        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+        borderWidth: 2,
+        tension: 0.4, // Smooth curve
+        pointRadius: 3,
+      },
+    ],
   };
 
-  const isRising = data.waterLevel > data.previousLevel;
-  const statusColor = {
-    Normal: 'success',
-    Warning: 'warning',
-    Danger: 'error'
-  }[data.status];
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#a1a1aa' }, // X-axis text color
+      },
+      y: {
+        grid: { color: '#52525b' },
+        ticks: { color: '#a1a1aa' }, // Y-axis text color
+        suggestedMin: 1206,
+        suggestedMax: 1208.5,
+      },
+    },
+    plugins: {
+      legend: {
+        display: false, // Hide the legend
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `Level: ${context.raw} m`,
+        },
+      },
+    },
+    elements: {
+      horizontalLine: {
+        y: 1206.02,
+        color: '#f97316',
+        label: {
+          content: 'Orange Alert',
+          enabled: true,
+          position: 'start',
+        },
+      },
+    },
+  };
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 8 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ 
-            mb: 4, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between' 
-          }}>
-            <Typography variant="h1" component="h1">
-              {data.name}
-            </Typography>
-            <Chip
-              label={data.status}
-              color={statusColor}
-              variant="outlined"
-              sx={{ 
-                borderWidth: 2,
-                px: 1,
-                '& .MuiChip-label': {
-                  px: 1,
-                }
-              }}
-            />
-          </Box>
-          
-          <Divider sx={{ mb: 4 }} />
+    <div className="min-h-screen bg-zinc-950 text-white p-6">
+      <div className="max-w-[1200px] mx-auto space-y-6">
+        <h1 className="text-3xl font-bold border-b pb-2">Anayirankal</h1>
 
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <DataCard title="Current Status">
-                <Box sx={{ mb: 4 }}>
-                  <Typography color="text.secondary" variant="body2">
-                    Water Level
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'baseline', mt: 1 }}>
-                    <Typography variant="h2" component="span">
-                      {data.waterLevel} ft
-                    </Typography>
-                    <Box 
-                      sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        ml: 2,
-                        color: isRising ? 'error.main' : 'success.main'
-                      }}
-                    >
-                      {isRising ? (
-                        <ArrowUpward sx={{ fontSize: 20 }} />
-                      ) : (
-                        <ArrowDownward sx={{ fontSize: 20 }} />
-                      )}
-                      <Typography variant="body2" sx={{ ml: 0.5 }}>
-                        {Math.abs(data.waterLevel - data.previousLevel).toFixed(1)} ft
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
+        {/* Cards Section */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Current Status */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+            <h2 className="text-xl font-bold mb-4">Current Status</h2>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Water Level:</span>
+                <span>1207.02 m</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Storage:</span>
+                <span>49.8377 MCM (100.02%)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Inflow:</span>
+                <span>1.01 cumecs</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Outflow:</span>
+                <span>0.00 cumecs</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Rainfall:</span>
+                <span>1.00 mm</span>
+              </div>
+            </div>
+          </div>
 
-                <DataRow
-                  icon={Cloud}
-                  label="Rainfall"
-                  value={`${data.rainfall} mm`}
-                />
-                <DataRow
-                  icon={Air}
-                  label="Wind Speed"
-                  value={`${data.windSpeed} km/h`}
-                />
-                <DataRow
-                  icon={Opacity}
-                  label="Humidity"
-                  value={`${data.humidity}%`}
-                />
-                <DataRow
-                  icon={Thermostat}
-                  label="Temperature"
-                  value={`${data.temperature}°C`}
-                />
-                <DataRow
-                  icon={LocationOn}
-                  label="Location"
-                  value={`${data.latitude}° N, ${data.longitude}° E`}
-                />
-              </DataCard>
-            </Grid>
+          {/* Dam Specifications */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+            <h2 className="text-xl font-bold mb-4">Dam Specifications</h2>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Maximum Water Level:</span>
+                <span>1210.070 m</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Full Reservoir Level:</span>
+                <span>1207.020 m</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Total Capacity:</span>
+                <span>49.83 MCM</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Red Alert Level:</span>
+                <span>1207.02 m</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Orange Alert Level:</span>
+                <span>1206.02 m</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <Grid item xs={12} md={6}>
-              <DataCard title="Alert Levels">
-                <AlertLevel
-                  color="success"
-                  label="Green Alert Level"
-                  value={data.alerts.green}
-                />
-                <AlertLevel
-                  color="warning"
-                  label="Yellow Alert Level"
-                  value={data.alerts.yellow}
-                />
-                <AlertLevel
-                  color="warning"
-                  label="Orange Alert Level"
-                  value={data.alerts.warning}
-                />
-                <AlertLevel
-                  color="error"
-                  label="Red Alert Level"
-                  value={data.alerts.red}
-                />
-              </DataCard>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
-    </ThemeProvider>
+        {/* Time Range Selector */}
+        <div className="flex justify-end">
+          <select
+            defaultValue="1"
+            className="bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-2 w-44"
+          >
+            <option value="1">1 Month</option>
+            <option value="3">3 Months</option>
+            <option value="6">6 Months</option>
+          </select>
+        </div>
+
+        {/* Water Level Chart */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+          <h2 className="text-xl font-bold mb-4">Water Level Over Time</h2>
+          <div className="h-[300px]">
+            <Line data={chartData} options={chartOptions} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
