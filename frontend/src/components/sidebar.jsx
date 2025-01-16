@@ -37,7 +37,7 @@ const Sidebar = () => {
               node.orange_alert,
               node.red_alert
             ),
-            slug: node.locationName.toLowerCase().replace(/\s+/g, '-')
+            nodeId: node.nodeId, 
           }));
           setNodeMetadata(formattedData);
         } else {
@@ -80,13 +80,13 @@ const Sidebar = () => {
       </h1>
       <nav className="space-y-4">
         {nodeMetadata.map((node) => {
-          const path = `/${node.slug}`;
+          const path = `/${node.nodeId}`;
           const isActive = location.pathname === path;
           
           return (
             <Link
               to={path}
-              key={node.slug}
+              key={node.nodeId}
               className={`block transition duration-200 ${
                 isActive ? 'ring-2 ring-blue-500' : ''
               }`}

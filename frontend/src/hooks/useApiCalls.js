@@ -9,6 +9,7 @@ import { SERVER_BASE_URL } from "../config/Backend_URL";
 const useApiCalls = () => {
   const [loading, setLoading] = useState(false);
 
+  // Fetch all node metadata
   const fetchNodeMetaData = useCallback(async () => {
     setLoading(true);
     try {
@@ -22,7 +23,23 @@ const useApiCalls = () => {
     }
   }, []);
 
-  return { fetchNodeMetaData, loading };
+  // Fetch single node metadata by nodeId
+  const fetchNodeMetaDataById = useCallback(async (nodeId) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${SERVER_BASE_URL}/v1/node-metadata/${nodeId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to fetch data for nodeId ${nodeId}:`, error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { fetchNodeMetaData, fetchNodeMetaDataById, loading };
 };
 
 export default useApiCalls;

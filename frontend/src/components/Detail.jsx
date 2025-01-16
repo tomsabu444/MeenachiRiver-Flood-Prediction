@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom'; // For extracting nodeId from the URL
+import useApiCalls from '../hooks/useApiCalls'; // Assuming your custom hook is here
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -14,72 +16,75 @@ import {
 // Register Chart.js modules
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const data = [
-  { date: '09.12.2024', level: 1207.0 },
-  { date: '12.12.2024', level: 1207.1 },
-  { date: '15.12.2024', level: 1207.2 },
-  { date: '18.12.2024', level: 1207.0 },
-];
-
 const Detail = () => {
-  // Prepare data for Chart.js
-  const chartData = {
-    labels: data.map((entry) => entry.date),
-    datasets: [
-      {
-        label: 'Water Level (m)',
-        data: data.map((entry) => entry.level),
-        borderColor: '#06b6d4',
-        backgroundColor: 'rgba(6, 182, 212, 0.2)',
-        borderWidth: 2,
-        tension: 0.4, // Smooth curve
-        pointRadius: 3,
-      },
-    ],
+  const { nodeId } = useParams(); // Get nodeId from URL
+  const { fetchNodeMetaDataById, loading } = useApiCalls();
+  const [nodeData, setNodeData] = useState(null); // To store the fetched node data
+  const [chartData, setChartData] = useState(null); // To store data for the chart
+
+  // Generate dummy data for chart
+  const generateDummyChartData = () => {
+    const dummyData = {
+      labels: ['2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01'],
+      datasets: [
+        {
+          label: 'Water Level (m)',
+          data: [10, 12, 14, 13, 15], // Example water levels over time
+          borderColor: '#06b6d4',
+          backgroundColor: 'rgba(6, 182, 212, 0.2)',
+          borderWidth: 2,
+          tension: 0.4, // Smooth curve
+          pointRadius: 3,
+        },
+      ],
+    };
+    return dummyData;
   };
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { color: '#a1a1aa' }, // X-axis text color
-      },
-      y: {
-        grid: { color: '#52525b' },
-        ticks: { color: '#a1a1aa' }, // Y-axis text color
-        suggestedMin: 1206,
-        suggestedMax: 1208.5,
-      },
-    },
-    plugins: {
-      legend: {
-        display: false, // Hide the legend
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => `Level: ${context.raw} m`,
-        },
-      },
-    },
-    elements: {
-      horizontalLine: {
-        y: 1206.02,
-        color: '#f97316',
-        label: {
-          content: 'Orange Alert',
-          enabled: true,
-          position: 'start',
-        },
-      },
-    },
-  };
+  // Fetch node data when component is mounted or nodeId changes
+  useEffect(() => {
+    if (nodeId) {
+      fetchNodeMetaDataById(nodeId)
+        .then((data) => {
+          setNodeData(data.data); // Store the node data
+          // Prepare chart data based on node data (assuming it contains a 'history' array)
+          const chartData = {
+            labels: data.data.history ? data.data.history.map((entry) => entry.date) : ['2024-01-01', '2024-02-01'],
+            datasets: [
+              {
+                label: 'Water Level (m)',
+                data: data.data.history ? data.data.history.map((entry) => entry.level) : [10, 12],
+                borderColor: '#06b6d4',
+                backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                borderWidth: 2,
+                tension: 0.4, // Smooth curve
+                pointRadius: 3,
+              },
+            ],
+          };
+          setChartData(chartData); // Update chart data
+        })
+        .catch((error) => {
+          console.error("Error fetching node data:", error);
+          // Use dummy data if the API fails
+          setChartData(generateDummyChartData());
+        });
+    }
+  }, [nodeId, fetchNodeMetaDataById]);
+
+  // If loading, show a loading spinner
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!nodeData || !chartData) {
+    return <div>No data available for this node.</div>;
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6">
       <div className="max-w-[1200px] mx-auto space-y-6">
-        <h1 className="text-3xl font-bold border-b pb-2">Anayirankal</h1>
+        <h1 className="text-3xl font-bold border-b pb-2">{nodeData.locationName}</h1>
 
         {/* Cards Section */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -89,50 +94,34 @@ const Detail = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-zinc-400">Water Level:</span>
-                <span>1207.02 m</span>
+                <span>{nodeData.latest_water_level} m</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Storage:</span>
-                <span>49.8377 MCM (100.02%)</span>
+                <span className="text-zinc-400">Latitude:</span>
+                <span>{nodeData.latitude}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Inflow:</span>
-                <span>1.01 cumecs</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-400">Outflow:</span>
-                <span>0.00 cumecs</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-400">Rainfall:</span>
-                <span>1.00 mm</span>
+                <span className="text-zinc-400">Longitude:</span>
+                <span>{nodeData.longitude}</span>
               </div>
             </div>
           </div>
 
-          {/* Dam Specifications */}
+          {/* Warning Specifications */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-            <h2 className="text-xl font-bold mb-4">Dam Specifications</h2>
+            <h2 className="text-xl font-bold mb-4">Warning Specifications</h2>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-zinc-400">Maximum Water Level:</span>
-                <span>1210.070 m</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-400">Full Reservoir Level:</span>
-                <span>1207.020 m</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-400">Total Capacity:</span>
-                <span>49.83 MCM</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-400">Red Alert Level:</span>
-                <span>1207.02 m</span>
+                <span className="text-zinc-400">Yellow Alert Level:</span>
+                <span>{nodeData.yellow_alert} m</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Orange Alert Level:</span>
-                <span>1206.02 m</span>
+                <span>{nodeData.orange_alert} m</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Red Alert Level:</span>
+                <span>{nodeData.red_alert} m</span>
               </div>
             </div>
           </div>
@@ -154,7 +143,7 @@ const Detail = () => {
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <h2 className="text-xl font-bold mb-4">Water Level Over Time</h2>
           <div className="h-[300px]">
-            <Line data={chartData} options={chartOptions} />
+            <Line data={chartData} />
           </div>
         </div>
       </div>
