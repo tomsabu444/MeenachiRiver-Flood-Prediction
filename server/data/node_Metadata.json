@@ -10,8 +10,7 @@
     "otherMetadata": {
       "type": null,
       "description": "Southern Western River Division(SWRD)"
-    },
-    "latest_water_level": 1.5
+    }
   },
   {
     "nodeId": "poonjar-001",
@@ -24,7 +23,6 @@
     "otherMetadata": {
       "type": null,
       "description": null
-    },
-    "latest_water_level": 12.5
+    }
   }
 ]

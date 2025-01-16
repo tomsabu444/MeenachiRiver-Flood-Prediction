@@ -39,7 +39,22 @@ const useApiCalls = () => {
     }
   }, []);
 
-  return { fetchNodeMetaData, fetchNodeMetaDataById, loading };
+  const fetchNodeChartDataById = useCallback(async (nodeId) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${SERVER_BASE_URL}/v1/water-level/${nodeId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to fetch water level for nodeId ${nodeId}:`, error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { fetchNodeMetaData, fetchNodeMetaDataById, fetchNodeChartDataById, loading };
 };
 
 export default useApiCalls;

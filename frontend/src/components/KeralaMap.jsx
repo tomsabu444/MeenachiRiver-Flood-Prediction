@@ -80,11 +80,13 @@ const KeralaMap = () => {
         fillColor: color,
         fillOpacity: 0.8,
       }).addTo(map);
+      
+      const truncateToOneDecimal = (value) => Math.floor(value * 10) / 10; // Truncate to 1 decimal place
 
       // Add text inside the circle marker
       const iconHtml = `
         <div style="position: relative; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; background-color: ${color}; border-radius: 50%; font-size: 12px; color: white; font-weight: bold;">
-          ${point.waterLevel}
+          ${truncateToOneDecimal(point.waterLevel)}
         </div>
       `;
       const textIcon = L.divIcon({
@@ -97,8 +99,9 @@ const KeralaMap = () => {
       L.marker([point.latitude, point.longitude], { icon: textIcon }).addTo(markers);
 
       // Add a click event to display more details about the location
+      
       marker.on("click", () => {
-        alert(`Station: ${point.name}\nWater Level: ${point.waterLevel} ft`);
+        alert(`Station: ${point.name}\nWater Level: ${truncateToOneDecimal(point.waterLevel)} ft`);
       });
     });
 

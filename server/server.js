@@ -17,8 +17,9 @@ connectDB(); //! Initialize MongoDB connection
 app.use("/", require("./routes/health")); //? Test route to check if the server is running
 app.use("/v1/node-data/add",NodeAuthenticate, require("./routes/nodeEndpoint")); //? Route to receive data from IoT nodes
 app.use("/v1/node-metadata", require("./routes/nodeMetadataRoutes")); //? Route to get node metadata
+app.use("/v1/water-level", require("./routes/getWaterlevel")); //? Route to get water level data
 
-  app.listen(port, () =>
+app.listen(port, () =>
     console.log(`Server is running on port  http://localhost:${port}`)
   );
 
