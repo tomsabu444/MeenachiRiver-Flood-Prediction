@@ -24,5 +24,18 @@
       "type": null,
       "description": null
     }
+  },
+  {
+    "nodeId": "test-000",
+    "locationName": "test",
+    "latitude": 9.710301,
+    "longitude": 76.681433,
+    "yellow_alert": 1,
+    "orange_alert": 2,
+    "red_alert": 3,
+    "otherMetadata": {
+      "type": null,
+      "description": null
+    }
   }
 ]
