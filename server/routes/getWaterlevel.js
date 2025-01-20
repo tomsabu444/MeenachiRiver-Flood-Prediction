@@ -8,7 +8,7 @@ router.get("/:nodeId", async (req, res) => {
 
     // Query the database for data by nodeId (limit results or filter as needed)
     const nodeData = await NodeDataSchema.find({ nodeId })
-      .sort({ timestamp: -1 }).limit(100); // Limit to 10 records, adjust as needed
+      .sort({ timestamp: -1 }).limit(300); // Limit to 10 records, adjust as needed
 
     if (!nodeData || nodeData.length === 0) {
       return res

@@ -53,7 +53,7 @@ const Detail = () => {
               labels: [],
               datasets: [
                 {
-                  label: "Water Level (m)",
+                  label: "Water Level (ft)",
                   data: [],
                   borderColor: "#06b6d4",
                   backgroundColor: "rgba(6, 182, 212, 0.2)",
@@ -79,7 +79,7 @@ const Detail = () => {
               ), // Format timestamps for labels
               datasets: [
                 {
-                  label: "Water Level (m)",
+                  label: "Water Level (ft)",
                   data:  reversedData.map((entry) => entry.waterLevel),
                   borderColor: "#06b6d4",
                   backgroundColor: "rgba(6, 182, 212, 0.2)",
@@ -99,7 +99,7 @@ const Detail = () => {
             labels: [],
             datasets: [
               {
-                label: "Water Level (m)",
+                label: "Water Level (ft)",
                 data: [],
                 borderColor: "#06b6d4",
                 backgroundColor: "rgba(6, 182, 212, 0.2)",
@@ -135,7 +135,7 @@ const Detail = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-zinc-400">Water Level:</span>
-                <span>{nodeData.latest_water_level} m</span>
+                <span>{nodeData.latest_water_level} ft</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Latitude:</span>
