@@ -5,15 +5,54 @@ const NodeDataSchema = require('../schema/NodeDataSchema');
 router.get("/:nodeId", async (req, res) => {
   try {
     const { nodeId } = req.params;
+    const { range } = req.query;
 
-    // Query the database for data by nodeId (limit results or filter as needed)
-    const nodeData = await NodeDataSchema.find({ nodeId })
-      .sort({ timestamp: -1 }).limit(300); // Limit to 10 records, adjust as needed
+    let daysToFilter = 30; // Default to 30 days
+    if (range === "2") daysToFilter = 2;
+    else if (range === "5") daysToFilter = 5;
+    else if (range === "10") daysToFilter = 10;
+    else if (range === "20") daysToFilter = 20;
+    else if (range === "3") daysToFilter = 90;
+    else if (range === "6") daysToFilter = 180;
+
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - daysToFilter);
+
+    // Aggregate to get data points at 10-minute intervals
+    const nodeData = await NodeDataSchema.aggregate([
+      {
+        $match: {
+          nodeId: nodeId,
+          timestamp: { $gte: fromDate }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            // Group by 10-minute intervals
+            year: { $year: "$timestamp" },
+            month: { $month: "$timestamp" },
+            day: { $dayOfMonth: "$timestamp" },
+            hour: { $hour: "$timestamp" },
+            tenMinute: {
+              $subtract: [
+                { $minute: "$timestamp" },
+                { $mod: [{ $minute: "$timestamp" }, 20] }
+              ]
+            }
+          },
+          timestamp: { $first: "$timestamp" },
+          waterLevel: { $avg: "$waterLevel" }, // Average water level in the 10-min interval
+          nodeId: { $first: "$nodeId" }
+        }
+      },
+      { $sort: { timestamp: -1 } }
+    ]);
 
     if (!nodeData || nodeData.length === 0) {
       return res
         .status(404)
-        .json({ message: "No data found for the given nodeId." });
+        .json({ message: "No data found for the given nodeId and range." });
     }
 
     res.json({ success: true, data: nodeData });
