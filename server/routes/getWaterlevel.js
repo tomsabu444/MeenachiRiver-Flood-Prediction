@@ -37,13 +37,13 @@ router.get("/:nodeId", async (req, res) => {
             tenMinute: {
               $subtract: [
                 { $minute: "$timestamp" },
-                { $mod: [{ $minute: "$timestamp" }, 20] }
+                { $mod: [{ $minute: "$timestamp" }, 10] }
               ]
             }
           },
           timestamp: { $first: "$timestamp" },
-          waterLevel: { $avg: "$waterLevel" }, // Average water level in the 10-min interval
-          nodeId: { $first: "$nodeId" }
+          nodeId: { $first: "$nodeId" },
+          waterLevel: { $first: "$waterLevel" } // Get the first water level in the group
         }
       },
       { $sort: { timestamp: -1 } }
