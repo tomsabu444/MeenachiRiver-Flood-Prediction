@@ -230,7 +230,7 @@ const Detail = () => {
             <FormControl
               variant="outlined"
               sx={{
-                minWidth: 120,
+                minWidth: 160,
                 "& .MuiInputLabel-root": {
                   color: "#fff", // Label color
                 },
