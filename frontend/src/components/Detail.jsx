@@ -14,6 +14,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import Loading from "./Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -83,18 +84,36 @@ const Detail = () => {
   };
 
   useEffect(() => {
-    if (nodeId) {
-      fetchNodeMetaDataById(nodeId)
-        .then((data) => data?.data && setNodeData(data.data))
-        .catch(console.error);
-
-      fetchNodeChartDataById(nodeId, selectedRange)
-        .then((chartResponse) => updateChartData(chartResponse.data))
-        .catch(() => setChartData(null));
-    }
+    const fetchData = async () => {
+      if (nodeId) {
+        try {
+          const metaDataResponse = await fetchNodeMetaDataById(nodeId);
+          if (metaDataResponse?.data) {
+            setNodeData(metaDataResponse.data);
+          }
+        } catch (error) {
+          console.error("Error fetching node metadata:", error);
+        }
+  
+        try {
+          const chartResponse = await fetchNodeChartDataById(nodeId, selectedRange);
+          if (chartResponse?.data) {
+            updateChartData(chartResponse.data);
+          } else {
+            setChartData(null);
+          }
+        } catch (error) {
+          console.error("Error fetching chart data:", error);
+          setChartData(null);
+        }
+      }
+    };
+  
+    fetchData();
   }, [nodeId, selectedRange, fetchNodeMetaDataById, fetchNodeChartDataById]);
+  
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading/>;
   if (!nodeData || !chartData) return <div>No data available for this node.</div>;
 
   const chartOptions = {
