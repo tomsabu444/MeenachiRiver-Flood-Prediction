@@ -43,7 +43,7 @@ const KeralaMap = () => {
     // Initialize the map
     const map = L.map("map", {
       center: [9.708965, 76.690926],
-      zoom: 12,
+      zoom: 11,
       minZoom: 8,
       maxBounds: keralaBounds,
       maxBoundsViscosity: 1.0,

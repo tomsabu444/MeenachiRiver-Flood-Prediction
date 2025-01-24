@@ -74,7 +74,7 @@ const Sidebar = () => {
   }
 
   return (
-    <aside className="w-full md:w-80 bg-gray-900 text-white p-4 md:max-h-screen font-roboto overflow-y-auto">
+    <aside className="w-full h-56 md:h-full md:w-80 bg-gray-900 text-white p-4 md:max-h-screen font-roboto overflow-y-auto">
       <h1 className="text-xl font-bold text-center bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-4">
         Locations
       </h1>
