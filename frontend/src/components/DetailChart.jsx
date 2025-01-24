@@ -16,16 +16,28 @@ const DetailChart = ({
           variant="outlined"
           sx={{
             minWidth: 160,
-            "& .MuiInputLabel-root": { color: "#fff" }, // Label color
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": { borderColor: "#18181b", borderRadius: "8px" },
-              "&:hover fieldset": { borderColor: "#06b6d4" }, // Hover color
-              "&.Mui-focused fieldset": { borderColor: "#06b6d4" },
-              color: "#fff", // Text color
+            "& .MuiInputLabel-root": {
+              color: "#fff", // Label color
             },
-            "& .MuiSelect-icon": { color: "#fff" },
-            backgroundColor: "#18181b",
-            borderRadius: "8px",
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "#18181b", // Border color
+                borderRadius: "8px", // Border radius
+              },
+              "&:hover fieldset": {
+                borderColor: "#18181b", // Border color on hover
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#18181b", // Border color when focused
+              },
+              color: "#fff", // Text color
+              borderRadius: "8px", // Apply border radius to the input
+            },
+            "& .MuiSelect-icon": {
+              color: "#fff", // Dropdown arrow color
+            },
+            backgroundColor: "#18181b", // Background color of the dropdown
+            borderRadius: "8px", // Ensure overall border radius consistency
           }}
         >
           <InputLabel id="range-select-label">Time Range</InputLabel>
@@ -51,7 +63,7 @@ const DetailChart = ({
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
         <h2 className="text-xl font-bold mb-4">Water Level Over Time</h2>
         <div className="h-[400px]">
-          {chartData?.labels?.length > 0 ? (
+          {chartData.labels.length > 0 ? (
             <Line data={chartData} options={chartOptions} />
           ) : (
             <p>No chart data available.</p>
