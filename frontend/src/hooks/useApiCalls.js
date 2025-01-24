@@ -39,11 +39,12 @@ const useApiCalls = () => {
     }
   }, []);
 
-  const fetchNodeChartDataById = useCallback(async (nodeId) => {
+  const fetchNodeChartDataById = useCallback(async (nodeId, range = "1") => {
     setLoading(true);
     try {
+      // Pass the time range as a query parameter
       const response = await axios.get(
-        `${SERVER_BASE_URL}/v1/water-level/${nodeId}`
+        `${SERVER_BASE_URL}/v1/water-level/${nodeId}?range=${range}`
       );
       return response.data;
     } catch (error) {
