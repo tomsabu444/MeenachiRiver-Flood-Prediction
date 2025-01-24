@@ -95,7 +95,6 @@ const Detail = () => {
   }, [nodeId, selectedRange, fetchNodeMetaDataById, fetchNodeChartDataById]);
 
   if (loading) return <div>Loading...</div>;
-  if (!nodeData || !chartData) return <div>No data available for this node.</div>;
 
   const chartOptions = {
     responsive: true,
