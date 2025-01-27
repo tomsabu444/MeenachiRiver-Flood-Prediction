@@ -67,7 +67,7 @@ const DetailChart = ({
                             },
                              title: {
                               display: true,
-                              text: 'Water Level (meters)',
+                              text: 'Water Level (feet)',
                               color: '#fff', // Customize y-axis label color
                             },
                         },
