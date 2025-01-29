@@ -12,9 +12,9 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: nodeId or waterLevel.' });
     }
 
-    // Fetch the last 40 records for this nodeId
+    // Fetch the last 40 records for this nodeId, sorted by timestamp
     const previousData = await IotNodeData.find({ nodeId })
-      .sort({ createdAt: -1 }) // Sorting by latest timestamp
+      .sort({ timestamp: -1 }) // Sorting by latest timestamp
       .limit(40);
 
     console.log("Fetched previous data:", previousData);
