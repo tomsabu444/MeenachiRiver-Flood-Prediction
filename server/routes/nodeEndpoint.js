@@ -12,27 +12,25 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: nodeId or waterLevel.' });
     }
 
-    // Fetch the last 60 records for this nodeId
+    // Fetch the last 40 records for this nodeId
     const previousData = await IotNodeData.find({ nodeId })
       .sort({ createdAt: -1 }) // Sorting by latest timestamp
       .limit(40);
 
     if (previousData.length > 0) {
-      // Calculate the average water level
-      const totalWaterLevel = previousData.reduce((sum, record) => sum + record.waterLevel, 0);
-      const averageWaterLevel = totalWaterLevel / previousData.length;
-
+      // Get all previous water levels
+      const previousWaterLevels = previousData.map(record => record.waterLevel);
+      
       // Get the last recorded water level
-      const lastValidWaterLevel = previousData[0].waterLevel;
+      const lastValidWaterLevel = previousWaterLevels[0];
 
-      // Define a threshold for abnormal difference (e.g., 30%)
-      const threshold = 0.3; // 30%
+      // Define a fixed threshold for anomaly detection
+      const threshold = 0.2;
 
       // Check for anomaly (large deviation) or negative value
-      if (
-        Math.abs(waterLevel - averageWaterLevel) / averageWaterLevel > threshold || 
-        waterLevel < 0
-      ) {
+      const isAnomalous = previousWaterLevels.every(prev => Math.abs(waterLevel - prev) > threshold);
+      
+      if (isAnomalous || waterLevel < 0) {
         console.log(`Anomaly detected. Replacing ${waterLevel} with ${lastValidWaterLevel}`);
         waterLevel = lastValidWaterLevel;
       }
