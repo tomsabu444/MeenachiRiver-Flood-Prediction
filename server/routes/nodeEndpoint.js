@@ -15,21 +15,19 @@ router.post('/', async (req, res) => {
     // Fetch the last 40 records for this nodeId, sorted by timestamp
     const previousData = await IotNodeData.find({ nodeId })
       .sort({ timestamp: -1 }) // Sorting by latest timestamp
-      .limit(40);
+      .limit(5);
 
-    console.log("Fetched previous data:", previousData);
 
     if (previousData.length > 0) {
       // Get the water levels of the previous records
       const previousWaterLevels = previousData.map(record => record.waterLevel);
-      console.log("Previous water levels:", previousWaterLevels);
 
       // Get the last recorded water level
       const lastValidWaterLevel = previousWaterLevels[0];
       console.log("Last valid water level:", lastValidWaterLevel);
 
       // Define the threshold for anomaly detection
-      const threshold = 0.2;
+      const threshold = 0.5;
 
       // Check if the new value is anomalous
       const isAnomalous = previousWaterLevels.every(prev => Math.abs(waterLevel - prev) > threshold);
