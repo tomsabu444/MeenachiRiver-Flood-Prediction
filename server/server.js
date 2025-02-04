@@ -3,7 +3,7 @@ const cros = require("cors");
 const connectDB = require("./config/databaseConnect");
 const NodeAuthenticate = require("./middleware/NodeAuthenticate");
 require("dotenv").config();
-const cron = require("node-cron");
+// const cron = require("node-cron");
 
 const app = express();
 const port = process.env.PORT;
