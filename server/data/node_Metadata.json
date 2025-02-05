@@ -1,7 +1,7 @@
 [
   {
     "nodeId": "kidangoor-001",
-    "locationName": "Kidangoor",
+    "locationName": "Kidangoor CWC",
     "latitude": 9.675,
     "longitude": 76.60278,
     "yellow_alert": 6,
@@ -10,6 +10,19 @@
     "otherMetadata": {
       "type": null,
       "description": "Southern Western River Division(SWRD)"
+    }
+  },
+  {
+    "nodeId": "kidangoor-004",
+    "locationName": "Kidangoor",
+    "latitude": 9.671577,
+    "longitude": 76.602354,
+    "yellow_alert": 6,
+    "orange_alert": 7,
+    "red_alert": 8.75,
+    "otherMetadata": {
+      "type": null,
+      "description": null
     }
   },
   {
