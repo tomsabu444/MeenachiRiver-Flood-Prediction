@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from "react";
-import useApiCalls from "../hooks/useApiCalls"; // Assuming the hook is in hooks folder
+import useApiCalls from "../hooks/useApiCalls"; 
+import { Snackbar, Alert } from "@mui/material"; 
+import { useNavigate } from "react-router-dom";
 
 function AlertPage() {
-  const { fetchNodeMetaData, postAlertPreferences, loading } = useApiCalls();  // Using custom hook
+  const { fetchNodeMetaData, postAlertPreferences, loading } = useApiCalls(); 
+  const navigate = useNavigate(); 
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
     locations: [],  // Storing nodeIds
   });
   const [nodeMetadata, setNodeMetadata] = useState([]);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState(""); 
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); 
 
   // Fetch the node metadata when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchNodeMetaData();
-        setNodeMetadata(data.data); // Assuming data.data contains the array of node metadata
+        setNodeMetadata(data.data);
       } catch (error) {
         console.error("Error fetching node metadata:", error);
       }
@@ -32,7 +38,7 @@ function AlertPage() {
       ...prev,
       locations: prev.locations.includes(nodeId)
         ? prev.locations.filter(id => id !== nodeId)
-        : [...prev.locations, nodeId] // Store nodeId instead of locationName
+        : [...prev.locations, nodeId] 
     }));
   };
 
@@ -42,10 +48,28 @@ function AlertPage() {
       // Call the postAlertPreferences function from the custom hook
       const response = await postAlertPreferences(formData.email, formData.phone, formData.locations);
       console.log("Alert preferences submitted:", response);
-      // Handle successful submission, maybe show a success message
+      
+      // Set success message
+      setSnackbarMessage("Your alert preferences have been successfully submitted!");
+      setSnackbarSeverity("success"); // Success severity
+      setOpenSnackbar(true); // Show the Snackbar
+
+      // Clear the form
+      setFormData({
+        email: "",
+        phone: "",
+        locations: [],
+      });
+
+      setTimeout(() => {
+        navigate("/"); 
+      }, 2000);
     } catch (error) {
       console.error("Error submitting alert preferences:", error);
-      // Handle error, show error message
+      // Set error message
+      setSnackbarMessage("Error submitting alert preferences. Please try again.");
+      setSnackbarSeverity("error"); // Error severity
+      setOpenSnackbar(true); // Show the Snackbar
     }
   };
 
@@ -58,6 +82,7 @@ function AlertPage() {
 
       <div className="relative bg-gray-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-[600px] text-gray-100 my-4" style={{ fontFamily: 'SF Pro Display, Helvetica, Arial, sans-serif' }}>
         <h2 className="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6 text-center text-gray-100">Alert</h2>
+
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
@@ -94,8 +119,8 @@ function AlertPage() {
                     <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-600 p-2 rounded-lg">
                       <input
                         type="checkbox"
-                        checked={formData.locations.includes(node.nodeId)} // Check by nodeId
-                        onChange={() => handleLocationChange(node.nodeId)} // Pass nodeId
+                        checked={formData.locations.includes(node.nodeId)} 
+                        onChange={() => handleLocationChange(node.nodeId)} 
                         className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-500 rounded focus:ring-blue-500 focus:ring-2"
                       />
                       <span className="text-gray-200 text-base sm:text-lg">{node.locationName}</span>
@@ -128,6 +153,17 @@ function AlertPage() {
           </button>
         </form>
       </div>
+
+      {/* Snackbar for Success/Failure message */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)} // Close Snackbar after 6 seconds
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
