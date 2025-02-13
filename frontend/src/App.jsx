@@ -5,6 +5,7 @@ import AboutUs from "./page/AboutUs";
 import Navbar from "./components/navbar";
 import Layout from "./components/layout";
 import Detail from "./components/Detail";
+import AlertPage from "./page/AlertPage";
 function App() {
   return (
     <BrowserRouter>
@@ -15,6 +16,7 @@ function App() {
           <Route path="/:nodeId" element={<Detail />} />
         </Route>
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/alert" element={<AlertPage/>} />
       </Routes>
     </BrowserRouter>
   );
