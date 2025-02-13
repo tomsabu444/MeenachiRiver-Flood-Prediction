@@ -1,36 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import useApiCalls from "../hooks/useApiCalls"; // Assuming the hook is in hooks folder
 
 function AlertPage() {
+  const { fetchNodeMetaData, postAlertPreferences, loading } = useApiCalls();  // Using custom hook
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
-    locations: [],
+    locations: [],  // Storing nodeIds
   });
+  const [nodeMetadata, setNodeMetadata] = useState([]);
 
-  const locationOptions = [
-    "Poonjar",
-    "Kidangoor",
-    "Erattupetta",
-    "Kanjirappally",
-    "Mundakayam"
-  ];
+  // Fetch the node metadata when the component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchNodeMetaData();
+        setNodeMetadata(data.data); // Assuming data.data contains the array of node metadata
+      } catch (error) {
+        console.error("Error fetching node metadata:", error);
+      }
+    };
+    fetchData();
+  }, [fetchNodeMetaData]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLocationChange = (location) => {
+  const handleLocationChange = (nodeId) => {
     setFormData(prev => ({
       ...prev,
-      locations: prev.locations.includes(location)
-        ? prev.locations.filter(loc => loc !== location)
-        : [...prev.locations, location]
+      locations: prev.locations.includes(nodeId)
+        ? prev.locations.filter(id => id !== nodeId)
+        : [...prev.locations, nodeId] // Store nodeId instead of locationName
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted: ", formData);
+    try {
+      // Call the postAlertPreferences function from the custom hook
+      const response = await postAlertPreferences(formData.email, formData.phone, formData.locations);
+      console.log("Alert preferences submitted:", response);
+      // Handle successful submission, maybe show a success message
+    } catch (error) {
+      console.error("Error submitting alert preferences:", error);
+      // Handle error, show error message
+    }
   };
 
   return (
@@ -39,7 +55,7 @@ function AlertPage() {
       <div className="absolute inset-0 bg-black opacity-50"></div>
       <div className="absolute w-3/4 h-3/4 bg-gradient-to-r from-gray-900 to-black rounded-full blur-3xl opacity-30"></div>
       <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-gray-800 rounded-full blur-2xl opacity-20"></div>
-      
+
       <div className="relative bg-gray-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-[600px] text-gray-100 my-4" style={{ fontFamily: 'SF Pro Display, Helvetica, Arial, sans-serif' }}>
         <h2 className="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6 text-center text-gray-100">Alert</h2>
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
@@ -70,19 +86,23 @@ function AlertPage() {
           <div>
             <label className="block text-gray-300 text-base sm:text-lg mb-2">Locations for Alerts:</label>
             <div className="bg-gray-700 rounded-lg border border-gray-600 p-3 sm:p-4 max-h-36 sm:max-h-48 overflow-y-auto">
-              {locationOptions.map((location) => (
-                <div key={location} className="mb-2 last:mb-0">
-                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-600 p-2 rounded-lg">
-                    <input
-                      type="checkbox"
-                      checked={formData.locations.includes(location)}
-                      onChange={() => handleLocationChange(location)}
-                      className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-500 rounded focus:ring-blue-500 focus:ring-2"
-                    />
-                    <span className="text-gray-200 text-base sm:text-lg">{location}</span>
-                  </label>
-                </div>
-              ))}
+              {nodeMetadata.length === 0 ? (
+                <div className="text-center text-gray-400">Loading location data...</div>
+              ) : (
+                nodeMetadata.map((node) => (
+                  <div key={node.nodeId} className="mb-2 last:mb-0">
+                    <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-600 p-2 rounded-lg">
+                      <input
+                        type="checkbox"
+                        checked={formData.locations.includes(node.nodeId)} // Check by nodeId
+                        onChange={() => handleLocationChange(node.nodeId)} // Pass nodeId
+                        className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-500 rounded focus:ring-blue-500 focus:ring-2"
+                      />
+                      <span className="text-gray-200 text-base sm:text-lg">{node.locationName}</span>
+                    </label>
+                  </div>
+                ))
+              )}
             </div>
             <div className="mt-2 flex items-center justify-between text-gray-400">
               <span className="text-xs sm:text-sm">Selected Locations: {formData.locations.length}</span>

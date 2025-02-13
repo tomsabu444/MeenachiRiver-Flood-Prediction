@@ -55,7 +55,26 @@ const useApiCalls = () => {
     }
   }, []);
 
-  return { fetchNodeMetaData, fetchNodeMetaDataById, fetchNodeChartDataById, loading };
+    // POST request to submit alert preferences
+    const postAlertPreferences = useCallback(async (email, phone, locations) => {
+      setLoading(true);
+      try {
+        const response = await axios.post(`${SERVER_BASE_URL}/v1/alert`, {
+          email,
+          phone,
+          locations,
+        });
+        return response.data; // Returns the response data from the backend
+      } catch (error) {
+        console.error("Failed to submit alert preferences:", error);
+        throw error; // Propagate error to be handled by the caller
+      } finally {
+        setLoading(false);
+      }
+    }, []);
+  
+
+  return { fetchNodeMetaData, fetchNodeMetaDataById, fetchNodeChartDataById, postAlertPreferences, loading };
 };
 
 export default useApiCalls;
