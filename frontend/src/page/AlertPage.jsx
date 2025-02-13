@@ -4,11 +4,28 @@ function AlertPage() {
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
-    locations: "",
+    locations: [],
   });
+
+  const locationOptions = [
+    "Poonjar",
+    "Kidangoor",
+    "Erattupetta",
+    "Kanjirappally",
+    "Mundakayam"
+  ];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLocationChange = (location) => {
+    setFormData(prev => ({
+      ...prev,
+      locations: prev.locations.includes(location)
+        ? prev.locations.filter(loc => loc !== location)
+        : [...prev.locations, location]
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -17,55 +34,75 @@ function AlertPage() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-black relative overflow-hidden">
+    <div className="flex justify-center items-center min-h-screen bg-black relative overflow-hidden p-4 mt-16 sm:mt-0">
       {/* Background Design */}
       <div className="absolute inset-0 bg-black opacity-50"></div>
       <div className="absolute w-3/4 h-3/4 bg-gradient-to-r from-gray-900 to-black rounded-full blur-3xl opacity-30"></div>
       <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-gray-800 rounded-full blur-2xl opacity-20"></div>
       
-      <div className="relative bg-gray-800 p-8 rounded-2xl shadow-2xl w-[600px] text-gray-100" style={{ fontFamily: 'SF Pro Display, Helvetica, Arial, sans-serif' }}>
-        <h2 className="text-3xl font-semibold mb-6 text-center text-gray-100">Alert</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block text-gray-300 text-lg mb-2">Email ID:</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-lg"
-              required
-            />
+      <div className="relative bg-gray-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-[600px] text-gray-100 my-4" style={{ fontFamily: 'SF Pro Display, Helvetica, Arial, sans-serif' }}>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6 text-center text-gray-100">Alert</h2>
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <label className="block text-gray-300 text-base sm:text-lg mb-2">Email ID:</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-base sm:text-lg"
+                required
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-gray-300 text-base sm:text-lg mb-2">Phone Number:</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-base sm:text-lg"
+                required
+              />
+            </div>
           </div>
-          <div className="mb-6">
-            <label className="block text-gray-300 text-lg mb-2">Phone Number:</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-lg"
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-300 text-lg mb-2">Locations for Alerts:</label>
-            <select
-              name="locations"
-              value={formData.locations}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-lg"
-              required
-            >
-              <option value="" disabled className="text-gray-400 text-lg">Select a location</option>
-              <option value="Poonjar">Poonjar</option>
-              <option value="Kidangoor">Kidangoor</option>
-            </select>
-            <p className="text-sm text-gray-400 mt-2">Selecting a location allows users to receive alerts specific to that area, keeping the users informed about important events, updates, or emergencies. This helps the user to stay updated on weather conditions, safety notifications, and community news relevant to their chosen location.</p>
+          <div>
+            <label className="block text-gray-300 text-base sm:text-lg mb-2">Locations for Alerts:</label>
+            <div className="bg-gray-700 rounded-lg border border-gray-600 p-3 sm:p-4 max-h-36 sm:max-h-48 overflow-y-auto">
+              {locationOptions.map((location) => (
+                <div key={location} className="mb-2 last:mb-0">
+                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-600 p-2 rounded-lg">
+                    <input
+                      type="checkbox"
+                      checked={formData.locations.includes(location)}
+                      onChange={() => handleLocationChange(location)}
+                      className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-500 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                    <span className="text-gray-200 text-base sm:text-lg">{location}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 flex items-center justify-between text-gray-400">
+              <span className="text-xs sm:text-sm">Selected Locations: {formData.locations.length}</span>
+              {formData.locations.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, locations: [] }))}
+                  className="text-xs sm:text-sm text-blue-400 hover:text-blue-300"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-gray-400 mt-2">
+              Select one or more locations to receive alerts specific to those areas. You'll be informed about important events, updates, and emergencies in your chosen locations.
+            </p>
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-500 transition transform hover:scale-105 duration-300 shadow-lg text-lg font-semibold mt-4"
+            className="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-lg hover:bg-blue-500 transition transform hover:scale-105 duration-300 shadow-lg text-base sm:text-lg font-semibold"
           >
             Submit
           </button>
