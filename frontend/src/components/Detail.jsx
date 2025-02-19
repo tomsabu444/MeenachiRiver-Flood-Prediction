@@ -37,11 +37,12 @@ const theme = createTheme({
 
 const Detail = () => {
   const { nodeId } = useParams();
-  const { fetchNodeMetaDataById, fetchNodeChartDataById, loading } =
-    useApiCalls();
+  const { fetchNodeMetaDataById, fetchNodeChartDataById, loading } = useApiCalls();
   const [nodeData, setNodeData] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [selectedRange, setSelectedRange] = useState("1");
+  const [chartError, setChartError] = useState(null);
+  const [metadataError, setMetadataError] = useState(null);
 
   const formatDateTime = (timestamp) => {
     if (!timestamp) return "N/A";
@@ -60,11 +61,20 @@ const Detail = () => {
   };
 
   const updateChartData = (data) => {
-    if (!data || !data.length) return setChartData({ labels: [], datasets: [] });
+    if (!data || !data.length) {
+      setChartData({ labels: [], datasets: [] });
+      setChartError("No chart data available");
+      return;
+    }
 
     const validData = data.filter(
       (entry) => entry.timestamp && !isNaN(new Date(entry.timestamp).getTime())
     );
+
+    if (validData.length === 0) {
+      setChartError("No valid data points found");
+      return;
+    }
 
     const formattedChartData = {
       labels: validData.reverse().map((entry) => formatDateTime(entry.timestamp)),
@@ -81,68 +91,104 @@ const Detail = () => {
       ],
     };
     setChartData(formattedChartData);
+    setChartError(null);
   };
 
   useEffect(() => {
     const fetchData = async () => {
       if (nodeId) {
-        try {
-          const metaDataResponse = await fetchNodeMetaDataById(nodeId);
-          if (metaDataResponse?.data) {
-            setNodeData(metaDataResponse.data);
+        // Reset errors at the start of new fetch
+        setMetadataError(null);
+        setChartError(null);
+
+        // Fetch metadata and chart data independently
+        const fetchMetadata = async () => {
+          try {
+            const metaDataResponse = await fetchNodeMetaDataById(nodeId);
+            if (metaDataResponse?.data) {
+              setNodeData(metaDataResponse.data);
+            } else {
+              setMetadataError("No metadata available for this node");
+            }
+          } catch (error) {
+            console.error("Error fetching node metadata:", error);
+            setMetadataError("Failed to load node information");
           }
-        } catch (error) {
-          console.error("Error fetching node metadata:", error);
-        }
-  
-        try {
-          const chartResponse = await fetchNodeChartDataById(nodeId, selectedRange);
-          if (chartResponse?.data) {
-            updateChartData(chartResponse.data);
-          } else {
+        };
+
+        const fetchChartData = async () => {
+          try {
+            const chartResponse = await fetchNodeChartDataById(nodeId, selectedRange);
+            if (chartResponse?.data) {
+              updateChartData(chartResponse.data);
+            } else {
+              setChartError("No chart data available");
+              setChartData(null);
+            }
+          } catch (error) {
+            console.error("Error fetching chart data:", error);
+            setChartError("Failed to load chart data");
             setChartData(null);
           }
-        } catch (error) {
-          console.error("Error fetching chart data:", error);
-          setChartData(null);
-        }
+        };
+
+        // Execute both fetches independently
+        await Promise.allSettled([fetchMetadata(), fetchChartData()]);
       }
     };
   
     fetchData();
   }, [nodeId, selectedRange, fetchNodeMetaDataById, fetchNodeChartDataById]);
-  
 
-  if (loading) return <Loading/>;
-  if (!nodeData || !chartData) return <div>No data available for this node.</div>;
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      tooltip: { mode: "index", intersect: false },
-      legend: { position: "top" },
-    },
-    scales: {
-      x: { ticks: { color: "#fff" }, grid: { color: "rgba(255, 255, 255, 0.1)" } },
-      y: { ticks: { color: "#fff" }, grid: { color: "rgba(255, 255, 255, 0.1)" } },
-    },
-  };
+  if (loading) return <Loading />;
 
   return (
     <ThemeProvider theme={theme}>
       <div className="min-h-screen bg-slate-700 text-white p-6 font-roboto">
         <div className="max-w-[1500px] mx-auto space-y-6">
+          {/* Always show the header, even if metadata fails */}
           <h1 className="text-3xl font-bold border-b pb-2">
-            {nodeData.locationName || "Unknown Location"}
+            {nodeData?.locationName || "Unknown Location"}
           </h1>
-          <DetailOverview nodeData={nodeData} formatDateTime={formatDateTime} />
-          <DetailChart
-            chartData={chartData}
-            chartOptions={chartOptions}
-            selectedRange={selectedRange}
-            handleTimeRangeChange={(e) => setSelectedRange(e.target.value)}
-          />
+          
+          {/* Show metadata error if it exists, but don't prevent showing other content */}
+          {metadataError && (
+            <div className="bg-slate-800 p-4 rounded-lg text-center">
+              <p className="text-yellow-400">{metadataError}</p>
+            </div>
+          )}
+
+          {/* Show overview if metadata is available */}
+          {nodeData && (
+            <DetailOverview nodeData={nodeData} formatDateTime={formatDateTime} />
+          )}
+
+          {/* Show chart error or chart data if available */}
+          {chartError ? (
+            <div className="bg-slate-800 p-4 rounded-lg text-center">
+              <p className="text-yellow-400">{chartError}</p>
+            </div>
+          ) : (
+            chartData && (
+              <DetailChart
+                chartData={chartData}
+                chartOptions={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    tooltip: { mode: "index", intersect: false },
+                    legend: { position: "top" },
+                  },
+                  scales: {
+                    x: { ticks: { color: "#fff" }, grid: { color: "rgba(255, 255, 255, 0.1)" } },
+                    y: { ticks: { color: "#fff" }, grid: { color: "rgba(255, 255, 255, 0.1)" } },
+                  },
+                }}
+                selectedRange={selectedRange}
+                handleTimeRangeChange={(e) => setSelectedRange(e.target.value)}
+              />
+            )
+          )}
         </div>
       </div>
     </ThemeProvider>
