@@ -26,7 +26,7 @@ const Detail = () => {
   const [predictedData, setPredictedData] = useState([]);
   const [metadataError, setMetadataError] = useState(null);
   const [chartError, setChartError] = useState(null);
-  const [selectedRange, setSelectedRange] = useState("10"); // Default: 10 Days
+  const [selectedRange, setSelectedRange] = useState("2"); // Default: 10 Days
 
   // Function to fetch data based on selected range
   const fetchData = async (range) => {
@@ -81,12 +81,12 @@ const Detail = () => {
     fetchData(selectedRange);
   }, [nodeId, selectedRange]);
 
-  // Debugging: Log fetched data
-  useEffect(() => {
-    console.log("✅ Node Metadata:", nodeData);
-    console.log("📊 Actual Water Level Data:", actualData);
-    console.log("🔮 Predicted Water Level Data:", predictedData);
-  }, [nodeData, actualData, predictedData]);
+  // // Debugging: Log fetched data
+  // useEffect(() => {
+  //   console.log("✅ Node Metadata:", nodeData);
+  //   console.log("📊 Actual Water Level Data:", actualData);
+  //   console.log("🔮 Predicted Water Level Data:", predictedData);
+  // }, [nodeData, actualData, predictedData]);
 
   if (loading) return <Loading />;
 
