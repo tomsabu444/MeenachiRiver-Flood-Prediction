@@ -11,45 +11,43 @@ const DetailChart = ({
     const chartInstance = useRef(null);
 
     useEffect(() => {
-        if (chartRef.current && chartData?.labels?.length > 0) {
+        if (chartRef.current && chartData?.datasets?.[0]?.data?.length > 0) {
             // Clean up previous chart instance if it exists
             if (chartInstance.current) {
                 chartInstance.current.destroy();
             }
 
+            console.log("📈 Chart data provided to Chart.js:", chartData);
+
             // Create a new chart instance with the provided data
             chartInstance.current = new Chart(chartRef.current, {
                 type: 'line',
-                data: chartData, // Use the properly formatted chartData directly
+                data: chartData,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    parsing: {
+                        xAxisKey: 'x',
+                        yAxisKey: 'y'
+                    },
                     scales: {
                         x: {
+                            type: 'category',
                             ticks: {
                                 color: '#fff',
                                 maxTicksLimit: 8,
                                 autoSkip: true,
-                                callback: function(value, index, values) {
-                                    if (values.length > 10) {
-                                        if (index % Math.ceil(values.length / 8) === 0) {
-                                            return this.getLabelForValue(value);
-                                        }
-                                    } else {
-                                        return this.getLabelForValue(value);
-                                    }
-                                },
                             },
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.1)',
                             },
                         },
                         y: {
-                            min: 0, // Always starts at 0
-                            max: 10, // Always ends at 10
+                            min: 0,
+                            suggestedMax: 10,
                             ticks: {
                                 color: '#fff',
-                                stepSize: 2, // Steps of 2 for better readability
+                                stepSize: 2,
                             },
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.1)',
@@ -72,6 +70,7 @@ const DetailChart = ({
                             intersect: false,
                         },
                     },
+                    spanGaps: true,
                 },
             });
         }
@@ -128,12 +127,25 @@ const DetailChart = ({
             <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
                 <h2 className="text-xl font-bold mb-4">Water Level Over Time</h2>
                 <div className="h-[400px]">
-                    {chartData?.labels?.length > 0 ? (
+                    {chartData?.datasets?.[0]?.data?.length > 0 ? (
                         <canvas ref={chartRef} />
                     ) : (
                         <p className="text-white">No chart data available.</p>
                     )}
                 </div>
+                
+                {/* Chart Legend Status */}
+                {/* <div className="mt-4 flex flex-wrap gap-4">
+                    {chartData?.datasets?.map((dataset, index) => (
+                        <div key={index} className="flex items-center">
+                            <div 
+                                className="w-4 h-4 mr-2 rounded-sm" 
+                                style={{backgroundColor: dataset.borderColor}}
+                            ></div>
+                            <span>{dataset.label}: {dataset.data.length} data points</span>
+                        </div>
+                    ))}
+                </div> */}
             </div>
         </div>
     );

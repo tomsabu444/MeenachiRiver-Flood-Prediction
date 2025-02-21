@@ -48,13 +48,18 @@ const Detail = () => {
         }).format(date);
   };
 
-  // Updated: Better handling of chart data with or without predictions
+  // Fixed approach: Focus on directly displaying the data as received
   const updateChartData = (actualData, predictedData) => {
     if (!actualData || !actualData.length) {
       setChartError("No chart data available");
       return;
     }
 
+    // Log received data for debugging
+    console.log("📊 Actual Data Sample:", actualData.slice(0, 2));
+    console.log("🔮 Predicted Data Sample:", predictedData.slice(0, 2));
+
+    // Simple processing to ensure valid data points
     const validActualData = actualData.filter(
       (entry) => entry.timestamp && !isNaN(new Date(entry.timestamp).getTime())
     );
@@ -64,36 +69,40 @@ const Detail = () => {
       return;
     }
 
-    // Always create a valid chart with actual data
-    const formattedChartData = {
-      labels: validActualData.map((entry) => formatDateTime(entry.timestamp)).reverse(),
-      datasets: [
-        {
-          label: "Actual Water Level (ft)",
-          data: validActualData.map((entry) => entry.waterLevel).reverse(),
-          borderColor: "#06b6d4",
-          backgroundColor: "rgba(6, 182, 212, 0.2)",
-          borderWidth: 2,
-          tension: 0.4,
-          pointRadius: 3,
-        }
-      ]
-    };
+    // Now prepare datasets in the expected format by Chart.js
+    const datasets = [
+      {
+        label: "Actual Water Level (ft)",
+        data: validActualData.map(entry => ({
+          x: formatDateTime(entry.timestamp),
+          y: entry.waterLevel
+        })),
+        borderColor: "#06b6d4",
+        backgroundColor: "rgba(6, 182, 212, 0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 3,
+      }
+    ];
 
-    // Only add predicted dataset if we have valid prediction data
+    // Only add predicted dataset if valid data exists
     if (predictedData && predictedData.length > 0) {
-      const validPredictedData = predictedData.filter(
-        (entry) => 
-          entry.timestamp && 
-          !isNaN(new Date(entry.timestamp).getTime()) && 
-          entry.predictedWaterLevel !== undefined && 
-          entry.predictedWaterLevel !== null
+      const validPredictedData = predictedData.filter(entry => 
+        entry.timestamp && 
+        !isNaN(new Date(entry.timestamp).getTime()) &&
+        entry.predictedWaterLevel !== undefined && 
+        entry.predictedWaterLevel !== null
       );
 
+      console.log(`✅ Found ${validPredictedData.length} valid prediction points`);
+      
       if (validPredictedData.length > 0) {
-        formattedChartData.datasets.push({
+        datasets.push({
           label: "Predicted Water Level (ft)",
-          data: validPredictedData.map((entry) => entry.predictedWaterLevel).reverse(),
+          data: validPredictedData.map(entry => ({
+            x: formatDateTime(entry.timestamp),
+            y: entry.predictedWaterLevel
+          })),
           borderColor: "rgb(255, 99, 132)",
           backgroundColor: "rgba(255, 99, 132, 0.2)",
           borderWidth: 2,
@@ -103,6 +112,11 @@ const Detail = () => {
         });
       }
     }
+
+    // Create the chart data structure
+    const formattedChartData = {
+      datasets: datasets
+    };
 
     setChartData(formattedChartData);
     setChartError(null);
@@ -134,28 +148,29 @@ const Detail = () => {
           try {
             const chartResponse = await fetchNodeChartDataById(nodeId, selectedRange);
             
-            // Handle case where actual data exists but prediction might fail
             if (!chartResponse?.data || chartResponse.data.length === 0) {
               setChartError("No chart data available");
               return;
             }
             
-            // Try to fetch prediction data, but proceed even if it fails
             let predictedData = [];
             try {
               const predictedResponse = await fetchPredictedDataById(nodeId, selectedRange);
-              if (predictedResponse?.data && predictedResponse.data.length > 0) {
+              console.log("🔮 Prediction API response:", predictedResponse);
+              
+              if (predictedResponse?.data && Array.isArray(predictedResponse.data)) {
+                // Success - we have prediction data
                 predictedData = predictedResponse.data;
                 setPredictedData([...predictedData]);
+                console.log(`📊 Received ${predictedData.length} prediction data points`);
+              } else {
+                console.warn("⚠️ Prediction data has unexpected format:", predictedResponse);
               }
             } catch (predictionError) {
-              console.warn("⚠️ Prediction data unavailable:", predictionError);
-              // Continue with only actual data
+              console.warn("⚠️ Prediction data fetch failed:", predictionError);
             }
 
-            // Always update chart with actual data, with or without predictions
             updateChartData(chartResponse.data, predictedData);
-            
           } catch (error) {
             console.error("❌ Error fetching chart data:", error);
             setChartError("Failed to load chart data");
@@ -208,6 +223,21 @@ const Detail = () => {
               />
             )
           )}
+
+          {/* Debug Information */}
+          {/* <div className="bg-zinc-900 p-4 rounded-lg mt-4 text-xs">
+            <details>
+              <summary className="cursor-pointer text-cyan-400 font-bold">Debug Information</summary>
+              <pre className="mt-2 text-gray-300 overflow-auto max-h-40">
+                {JSON.stringify({
+                  hasActualData: chartData?.datasets?.[0]?.data?.length || 0,
+                  hasPredictionData: chartData?.datasets?.[1]?.data?.length || 0,
+                  predictedDataCount: predictedData.length,
+                  predictedDataSample: predictedData.slice(0, 2)
+                }, null, 2)}
+              </pre>
+            </details>
+          </div> */}
         </div>
       </div>
     </ThemeProvider>
