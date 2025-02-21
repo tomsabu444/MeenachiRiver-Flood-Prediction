@@ -18,7 +18,7 @@ NODE_ID = "kidangoor-004"  # Change this to the node ID you want to forecast
 client = MongoClient(MONGODB_URL)
 db = client[DB_NAME]
 node_data_collection = db['iotnodedatas']  # Ensure this matches your collection name
-forecast_collection = db['predicted-data']  # Collection to store forecast results
+forecast_collection = db['predicted-datas']  # Collection to store forecast results
 
 # --- Fetch Historical Data ---
 # Fetch data from the last 30 days
