@@ -19,7 +19,7 @@ app.use("/v1/node-data/add",NodeAuthenticate, require("./routes/nodeEndpoint"));
 app.use("/v1/node-metadata", require("./routes/nodeMetadataRoutes")); //? Route to get node metadata
 app.use("/v1/water-level", require("./routes/getWaterlevel")); //? Route to get water level data
 app.use("/v1/alert", require("./routes/alertRoutes")); //? Route to get alert data
-
+app.use("/v1/predicted-data", require("./routes/predictedRoutes")); //? Route to get predicted water level data
 //const fetchAndStoreData = require(".//utils/hourlyfetch_kidangoorData");
 // Schedule the hourly task
 // cron.schedule("0 * * * *", async () => {

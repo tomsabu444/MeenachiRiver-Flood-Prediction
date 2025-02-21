@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  forecast:
+    build: ./prediction
+    container_name: forecast-runner
+    env_file:
+      - ./server/.env
+    command: python forecast.py
+    volumes:
+      - ./prediction:/app
