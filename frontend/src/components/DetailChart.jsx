@@ -1,157 +1,139 @@
 import React, { useRef, useEffect } from "react";
 import Chart from 'chart.js/auto';
-import { FormControl, Select, MenuItem, InputLabel } from "@mui/material";
+import 'chartjs-adapter-date-fns'; // Ensures time-based X-axis support
+import { format } from 'date-fns'; // Helps format timestamps
 
-const DetailChart = ({
-    chartData,
-    selectedRange,
-    handleTimeRangeChange,
-}) => {
+const DetailChart = ({ actualData, predictedData }) => {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
 
     useEffect(() => {
-        if (chartRef.current) {
-            if (chartInstance.current) {
-                chartInstance.current.destroy();
+        if (!chartRef.current || actualData.length === 0) {
+            return;
+        }
+
+        // Destroy existing chart instance before creating a new one
+        if (chartInstance.current) {
+            chartInstance.current.destroy();
+        }
+
+        // Convert actual & predicted data into chart-friendly format
+        const actualDataPoints = actualData.map(entry => ({
+            x: new Date(entry.timestamp),
+            y: entry.waterlevel,
+        }));
+
+        const predictedDataPoints = predictedData.length > 0
+            ? predictedData.map(entry => ({
+                x: new Date(entry.timestamp),
+                y: entry.waterlevel,
+            }))
+            : [];
+
+        // console.log("📊 Actual Data:", actualDataPoints);
+        // console.log("🔮 Predicted Data:", predictedDataPoints.length > 0 ? predictedDataPoints : "No Prediction Data");
+
+        // Create dataset array (conditionally add predicted data if available)
+        const datasets = [
+            {
+                label: "Actual Water Level (ft)",
+                data: actualDataPoints,
+                borderColor: "#06b6d4",
+                backgroundColor: "rgba(6, 182, 212, 0.2)",
+                borderWidth: 2,
+                tension: 0.4,
+                pointRadius: 3,
+                fill: false,
             }
+        ];
 
-            const labels = chartData?.labels || [];
-            const data = chartData?.datasets?.[0]?.data || [];
-
-
-            chartInstance.current = new Chart(chartRef.current, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Water Level',
-                        data: data,
-                        borderColor: 'rgb(75, 192, 192)',
-                         tension: 0.1,
-                         fill: false,
-                    }]
-                },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                    scales: {
-                       x: {
-                          ticks: {
-                            color: '#fff', // Explicitly set x-axis tick color to white
-                            maxTicksLimit: 8, // Reduced max ticks for better spacing
-                            autoSkip: true,
-                             callback: function(value, index, values) {
-                                if(values.length > 10) {
-                                  if (index % Math.ceil(values.length / 8) === 0) {
-                                      return this.getLabelForValue(value);
-                                    }
-                                 } else {
-                                    return this.getLabelForValue(value);
-                                 }
-                             },
-                         },
-                           grid: {
-                              color: 'rgba(255, 255, 255, 0.1)', // Customize grid line color
-                            },
-                        },
-                        y: {
-                            min: 0,
-                            max: 10,
-                             ticks: {
-                                color: '#fff', // Explicitly set y-axis tick color to white
-                                stepSize: 2,
-                            },
-                            grid: {
-                              color: 'rgba(255, 255, 255, 0.1)', // Customize grid line color
-                            },
-                             title: {
-                              display: true,
-                              text: 'Water Level (feet)',
-                              color: '#fff', // Customize y-axis label color
-                            },
-                        },
-                    },
-                     plugins: {
-                      legend: {
-                        labels: {
-                         color: '#fff' // Customize legend text color
-                        }
-                      },
-                    }
-                }
+        if (predictedDataPoints.length > 0) {
+            datasets.push({
+                label: "Predicted Water Level (ft)",
+                data: predictedDataPoints,
+                borderColor: "rgb(255, 99, 132)",
+                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                borderWidth: 2,
+                borderDash: [5, 5], // Makes it a dotted line
+                tension: 0.4,
+                pointRadius: 3,
+                fill: false,
             });
         }
 
+        // Create new Chart instance
+        chartInstance.current = new Chart(chartRef.current, {
+            type: 'line',
+            data: {
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            tooltipFormat: 'dd/MM/yy hh:mm a',
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return format(new Date(value), "d/MM/yy h:mm a");
+                            },
+                            color: '#fff',
+                            maxTicksLimit: 8,
+                            autoSkip: true,
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                        },
+                    },
+                    y: {
+                        min: 0,
+                        suggestedMax: 10,
+                        ticks: {
+                            color: '#fff',
+                            stepSize: 2,
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Water Level (feet)',
+                            color: '#fff',
+                        },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#fff',
+                        },
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                },
+                spanGaps: true,
+            },
+        });
+
+        // Cleanup: Destroy chart on unmount
         return () => {
             if (chartInstance.current) {
                 chartInstance.current.destroy();
                 chartInstance.current = null;
             }
-        }
-    }, [chartData]);
+        };
+    }, [actualData, predictedData]);
 
     return (
-        <div>
-            {/* Time Range Selector */}
-            <div className="flex justify-end mb-4">
-                <FormControl
-                    variant="outlined"
-                    sx={{
-                        minWidth: 160,
-                        "& .MuiInputLabel-root": {
-                            color: "#fff", // Label color
-                        },
-                        "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                                borderColor: "#18181b", // Border color
-                                borderRadius: "8px", // Border radius
-                            },
-                            "&:hover fieldset": {
-                                borderColor: "#18181b", // Border color on hover
-                            },
-                            "&.Mui-focused fieldset": {
-                                borderColor: "#18181b", // Border color when focused
-                            },
-                            color: "#fff", // Text color
-                            borderRadius: "8px", // Apply border radius to the input
-                        },
-                        "& .MuiSelect-icon": {
-                            color: "#fff", // Dropdown arrow color
-                        },
-                        backgroundColor: "#18181b", // Background color of the dropdown
-                        borderRadius: "8px", // Ensure overall border radius consistency
-                    }}
-                >
-                    <InputLabel id="range-select-label">Time Range</InputLabel>
-                    <Select
-                        labelId="range-select-label"
-                        id="range-select"
-                        value={selectedRange}
-                        onChange={handleTimeRangeChange}
-                        label="Time Range"
-                    >
-                         <MenuItem value="2">2 Days</MenuItem>
-                         <MenuItem value="5">5 Days</MenuItem>
-                         <MenuItem value="10">10 Days</MenuItem>
-                         <MenuItem value="20">20 Days</MenuItem>
-                         <MenuItem value="1">1 Month</MenuItem>
-                         <MenuItem value="3">3 Months</MenuItem>
-                         <MenuItem value="6">6 Months</MenuItem>
-                    </Select>
-                </FormControl>
-            </div>
-
-            {/* Chart Container */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-                <h2 className="text-xl font-bold mb-4">Water Level Over Time</h2>
-                <div className="h-[400px]">
-                    {chartData?.labels?.length > 0 ? (
-                        <canvas ref={chartRef} />
-                    ) : (
-                        <p className="text-white">No chart data available.</p>
-                    )}
-                </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+            <h2 className="text-xl font-bold mb-4">Water Level Over Time</h2>
+            <div className="h-[400px]">
+                <canvas ref={chartRef} />
             </div>
         </div>
     );
