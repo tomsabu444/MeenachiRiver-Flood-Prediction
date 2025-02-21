@@ -1,5 +1,3 @@
-# server/routes/prediction.py
-
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -303,7 +301,8 @@ def main():
     """Main function to run the prediction model"""
     try:
         # Get API key from command line or environment
-        api_key = sys.argv[1] if len(sys.argv) > 1 else os.getenv('WEATHER_API_KEY')
+        api_key = "d9250169ed6c4eed995162953251601"
+        
         if not api_key:
             raise ValueError("No Weather API key provided")
         
