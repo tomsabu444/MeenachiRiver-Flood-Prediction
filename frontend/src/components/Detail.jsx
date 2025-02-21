@@ -25,7 +25,6 @@ const Detail = () => {
   const [chartError, setChartError] = useState(null);
   const [metadataError, setMetadataError] = useState(null);
 
-  // Reset data when `nodeId` changes to trigger a re-render
   useEffect(() => {
     setNodeData(null);
     setChartData(null);
@@ -48,18 +47,15 @@ const Detail = () => {
         }).format(date);
   };
 
-  // Fixed approach: Focus on directly displaying the data as received
   const updateChartData = (actualData, predictedData) => {
     if (!actualData || !actualData.length) {
       setChartError("No chart data available");
       return;
     }
 
-    // Log received data for debugging
     console.log("📊 Actual Data Sample:", actualData.slice(0, 2));
     console.log("🔮 Predicted Data Sample:", predictedData.slice(0, 2));
 
-    // Simple processing to ensure valid data points
     const validActualData = actualData.filter(
       (entry) => entry.timestamp && !isNaN(new Date(entry.timestamp).getTime())
     );
@@ -69,7 +65,6 @@ const Detail = () => {
       return;
     }
 
-    // Now prepare datasets in the expected format by Chart.js
     const datasets = [
       {
         label: "Actual Water Level (ft)",
@@ -85,7 +80,6 @@ const Detail = () => {
       }
     ];
 
-    // Only add predicted dataset if valid data exists
     if (predictedData && predictedData.length > 0) {
       const validPredictedData = predictedData.filter(entry => 
         entry.timestamp && 
@@ -113,11 +107,7 @@ const Detail = () => {
       }
     }
 
-    // Create the chart data structure
-    const formattedChartData = {
-      datasets: datasets
-    };
-
+    const formattedChartData = { datasets };
     setChartData(formattedChartData);
     setChartError(null);
   };
@@ -159,7 +149,6 @@ const Detail = () => {
               console.log("🔮 Prediction API response:", predictedResponse);
               
               if (predictedResponse?.data && Array.isArray(predictedResponse.data)) {
-                // Success - we have prediction data
                 predictedData = predictedResponse.data;
                 setPredictedData([...predictedData]);
                 console.log(`📊 Received ${predictedData.length} prediction data points`);
@@ -216,28 +205,22 @@ const Detail = () => {
             </div>
           ) : (
             chartData && (
-              <DetailChart
-                chartData={chartData}
-                selectedRange={selectedRange}
-                handleTimeRangeChange={(e) => setSelectedRange(e.target.value)}
-              />
+              <div className="space-y-6">
+                <DetailChart
+                  chartData={chartData}
+                  selectedRange={selectedRange}
+                  handleTimeRangeChange={(e) => setSelectedRange(e.target.value)}
+                  chartType="actual"
+                />
+                <DetailChart
+                  chartData={chartData}
+                  selectedRange={selectedRange}
+                  handleTimeRangeChange={(e) => setSelectedRange(e.target.value)}
+                  chartType="predicted"
+                />
+              </div>
             )
           )}
-
-          {/* Debug Information */}
-          {/* <div className="bg-zinc-900 p-4 rounded-lg mt-4 text-xs">
-            <details>
-              <summary className="cursor-pointer text-cyan-400 font-bold">Debug Information</summary>
-              <pre className="mt-2 text-gray-300 overflow-auto max-h-40">
-                {JSON.stringify({
-                  hasActualData: chartData?.datasets?.[0]?.data?.length || 0,
-                  hasPredictionData: chartData?.datasets?.[1]?.data?.length || 0,
-                  predictedDataCount: predictedData.length,
-                  predictedDataSample: predictedData.slice(0, 2)
-                }, null, 2)}
-              </pre>
-            </details>
-          </div> */}
         </div>
       </div>
     </ThemeProvider>

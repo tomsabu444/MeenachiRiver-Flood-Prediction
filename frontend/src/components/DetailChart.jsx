@@ -6,23 +6,26 @@ const DetailChart = ({
     chartData,
     selectedRange,
     handleTimeRangeChange,
+    chartType = "actual" // "actual" or "predicted"
 }) => {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
 
     useEffect(() => {
-        if (chartRef.current && chartData?.datasets?.[0]?.data?.length > 0) {
-            // Clean up previous chart instance if it exists
+        if (chartRef.current && chartData?.datasets?.length > 0) {
             if (chartInstance.current) {
                 chartInstance.current.destroy();
             }
 
-            console.log("📈 Chart data provided to Chart.js:", chartData);
+            console.log(`📈 ${chartType} Chart data provided to Chart.js:`, chartData);
 
-            // Create a new chart instance with the provided data
             chartInstance.current = new Chart(chartRef.current, {
                 type: 'line',
-                data: chartData,
+                data: {
+                    datasets: [chartData.datasets.find(dataset => 
+                        dataset.label.toLowerCase().includes(chartType.toLowerCase())
+                    )].filter(Boolean)
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -33,6 +36,7 @@ const DetailChart = ({
                     scales: {
                         x: {
                             type: 'category',
+                            reverse: true, // This flips the X-axis
                             ticks: {
                                 color: '#fff',
                                 maxTicksLimit: 8,
@@ -81,71 +85,63 @@ const DetailChart = ({
                 chartInstance.current = null;
             }
         };
-    }, [chartData]);
+    }, [chartData, chartType]);
 
     return (
         <div>
-            {/* Time Range Selector */}
-            <div className="flex justify-end mb-4">
-                <FormControl
-                    variant="outlined"
-                    sx={{
-                        minWidth: 160,
-                        "& .MuiInputLabel-root": { color: "#fff" },
-                        "& .MuiOutlinedInput-root": {
-                            "& fieldset": { borderColor: "#18181b", borderRadius: "8px" },
-                            "&:hover fieldset": { borderColor: "#18181b" },
-                            "&.Mui-focused fieldset": { borderColor: "#18181b" },
-                            color: "#fff",
+            {chartType === "actual" && (
+                <div className="flex justify-end mb-4">
+                    <FormControl
+                        variant="outlined"
+                        sx={{
+                            minWidth: 160,
+                            "& .MuiInputLabel-root": { color: "#fff" },
+                            "& .MuiOutlinedInput-root": {
+                                "& fieldset": { borderColor: "#18181b", borderRadius: "8px" },
+                                "&:hover fieldset": { borderColor: "#18181b" },
+                                "&.Mui-focused fieldset": { borderColor: "#18181b" },
+                                color: "#fff",
+                                borderRadius: "8px",
+                            },
+                            "& .MuiSelect-icon": { color: "#fff" },
+                            backgroundColor: "#18181b",
                             borderRadius: "8px",
-                        },
-                        "& .MuiSelect-icon": { color: "#fff" },
-                        backgroundColor: "#18181b",
-                        borderRadius: "8px",
-                    }}
-                >
-                    <InputLabel id="range-select-label">Time Range</InputLabel>
-                    <Select
-                        labelId="range-select-label"
-                        id="range-select"
-                        value={selectedRange}
-                        onChange={handleTimeRangeChange}
-                        label="Time Range"
+                        }}
                     >
-                        <MenuItem value="2">2 Days</MenuItem>
-                        <MenuItem value="5">5 Days</MenuItem>
-                        <MenuItem value="10">10 Days</MenuItem>
-                        <MenuItem value="20">20 Days</MenuItem>
-                        <MenuItem value="1">1 Month</MenuItem>
-                        <MenuItem value="3">3 Months</MenuItem>
-                        <MenuItem value="6">6 Months</MenuItem>
-                    </Select>
-                </FormControl>
-            </div>
+                        <InputLabel id="range-select-label">Time Range</InputLabel>
+                        <Select
+                            labelId="range-select-label"
+                            id="range-select"
+                            value={selectedRange}
+                            onChange={handleTimeRangeChange}
+                            label="Time Range"
+                        >
+                            <MenuItem value="2">2 Days</MenuItem>
+                            <MenuItem value="5">5 Days</MenuItem>
+                            <MenuItem value="10">10 Days</MenuItem>
+                            <MenuItem value="20">20 Days</MenuItem>
+                            <MenuItem value="1">1 Month</MenuItem>
+                            <MenuItem value="3">3 Months</MenuItem>
+                            <MenuItem value="6">6 Months</MenuItem>
+                        </Select>
+                    </FormControl>
+                </div>
+            )}
 
-            {/* Chart Container */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-                <h2 className="text-xl font-bold mb-4">Water Level Over Time</h2>
+                <h2 className="text-xl font-bold mb-4">
+                    {chartType === "actual" ? "Actual Water Level Over Time" : "Predicted Water Level Over Time"}
+                </h2>
                 <div className="h-[400px]">
-                    {chartData?.datasets?.[0]?.data?.length > 0 ? (
+                    {chartData?.datasets?.some(dataset => 
+                        dataset.label.toLowerCase().includes(chartType.toLowerCase()) && 
+                        dataset.data?.length > 0
+                    ) ? (
                         <canvas ref={chartRef} />
                     ) : (
-                        <p className="text-white">No chart data available.</p>
+                        <p className="text-white">No {chartType} data available.</p>
                     )}
                 </div>
-                
-                {/* Chart Legend Status */}
-                {/* <div className="mt-4 flex flex-wrap gap-4">
-                    {chartData?.datasets?.map((dataset, index) => (
-                        <div key={index} className="flex items-center">
-                            <div 
-                                className="w-4 h-4 mr-2 rounded-sm" 
-                                style={{backgroundColor: dataset.borderColor}}
-                            ></div>
-                            <span>{dataset.label}: {dataset.data.length} data points</span>
-                        </div>
-                    ))}
-                </div> */}
             </div>
         </div>
     );
