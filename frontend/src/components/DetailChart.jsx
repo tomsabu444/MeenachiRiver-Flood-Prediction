@@ -11,75 +11,68 @@ const DetailChart = ({
     const chartInstance = useRef(null);
 
     useEffect(() => {
-        if (chartRef.current) {
+        if (chartRef.current && chartData?.labels?.length > 0) {
+            // Clean up previous chart instance if it exists
             if (chartInstance.current) {
                 chartInstance.current.destroy();
             }
 
-            const labels = chartData?.labels || [];
-            const data = chartData?.datasets?.[0]?.data || [];
-
-
+            // Create a new chart instance with the provided data
             chartInstance.current = new Chart(chartRef.current, {
                 type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Water Level',
-                        data: data,
-                        borderColor: 'rgb(75, 192, 192)',
-                         tension: 0.1,
-                         fill: false,
-                    }]
-                },
+                data: chartData, // Use the properly formatted chartData directly
                 options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
-                       x: {
-                          ticks: {
-                            color: '#fff', // Explicitly set x-axis tick color to white
-                            maxTicksLimit: 8, // Reduced max ticks for better spacing
-                            autoSkip: true,
-                             callback: function(value, index, values) {
-                                if(values.length > 10) {
-                                  if (index % Math.ceil(values.length / 8) === 0) {
-                                      return this.getLabelForValue(value);
+                        x: {
+                            ticks: {
+                                color: '#fff',
+                                maxTicksLimit: 8,
+                                autoSkip: true,
+                                callback: function(value, index, values) {
+                                    if (values.length > 10) {
+                                        if (index % Math.ceil(values.length / 8) === 0) {
+                                            return this.getLabelForValue(value);
+                                        }
+                                    } else {
+                                        return this.getLabelForValue(value);
                                     }
-                                 } else {
-                                    return this.getLabelForValue(value);
-                                 }
-                             },
-                         },
-                           grid: {
-                              color: 'rgba(255, 255, 255, 0.1)', // Customize grid line color
+                                },
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)',
                             },
                         },
                         y: {
-                            min: 0,
-                            max: 10,
-                             ticks: {
-                                color: '#fff', // Explicitly set y-axis tick color to white
-                                stepSize: 2,
+                            min: 0, // Always starts at 0
+                            max: 10, // Always ends at 10
+                            ticks: {
+                                color: '#fff',
+                                stepSize: 2, // Steps of 2 for better readability
                             },
                             grid: {
-                              color: 'rgba(255, 255, 255, 0.1)', // Customize grid line color
+                                color: 'rgba(255, 255, 255, 0.1)',
                             },
-                             title: {
-                              display: true,
-                              text: 'Water Level (feet)',
-                              color: '#fff', // Customize y-axis label color
+                            title: {
+                                display: true,
+                                text: 'Water Level (feet)',
+                                color: '#fff',
                             },
                         },
                     },
-                     plugins: {
-                      legend: {
-                        labels: {
-                         color: '#fff' // Customize legend text color
-                        }
-                      },
-                    }
-                }
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff',
+                            },
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                    },
+                },
             });
         }
 
@@ -88,7 +81,7 @@ const DetailChart = ({
                 chartInstance.current.destroy();
                 chartInstance.current = null;
             }
-        }
+        };
     }, [chartData]);
 
     return (
@@ -99,28 +92,17 @@ const DetailChart = ({
                     variant="outlined"
                     sx={{
                         minWidth: 160,
-                        "& .MuiInputLabel-root": {
-                            color: "#fff", // Label color
-                        },
+                        "& .MuiInputLabel-root": { color: "#fff" },
                         "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                                borderColor: "#18181b", // Border color
-                                borderRadius: "8px", // Border radius
-                            },
-                            "&:hover fieldset": {
-                                borderColor: "#18181b", // Border color on hover
-                            },
-                            "&.Mui-focused fieldset": {
-                                borderColor: "#18181b", // Border color when focused
-                            },
-                            color: "#fff", // Text color
-                            borderRadius: "8px", // Apply border radius to the input
+                            "& fieldset": { borderColor: "#18181b", borderRadius: "8px" },
+                            "&:hover fieldset": { borderColor: "#18181b" },
+                            "&.Mui-focused fieldset": { borderColor: "#18181b" },
+                            color: "#fff",
+                            borderRadius: "8px",
                         },
-                        "& .MuiSelect-icon": {
-                            color: "#fff", // Dropdown arrow color
-                        },
-                        backgroundColor: "#18181b", // Background color of the dropdown
-                        borderRadius: "8px", // Ensure overall border radius consistency
+                        "& .MuiSelect-icon": { color: "#fff" },
+                        backgroundColor: "#18181b",
+                        borderRadius: "8px",
                     }}
                 >
                     <InputLabel id="range-select-label">Time Range</InputLabel>
@@ -131,13 +113,13 @@ const DetailChart = ({
                         onChange={handleTimeRangeChange}
                         label="Time Range"
                     >
-                         <MenuItem value="2">2 Days</MenuItem>
-                         <MenuItem value="5">5 Days</MenuItem>
-                         <MenuItem value="10">10 Days</MenuItem>
-                         <MenuItem value="20">20 Days</MenuItem>
-                         <MenuItem value="1">1 Month</MenuItem>
-                         <MenuItem value="3">3 Months</MenuItem>
-                         <MenuItem value="6">6 Months</MenuItem>
+                        <MenuItem value="2">2 Days</MenuItem>
+                        <MenuItem value="5">5 Days</MenuItem>
+                        <MenuItem value="10">10 Days</MenuItem>
+                        <MenuItem value="20">20 Days</MenuItem>
+                        <MenuItem value="1">1 Month</MenuItem>
+                        <MenuItem value="3">3 Months</MenuItem>
+                        <MenuItem value="6">6 Months</MenuItem>
                     </Select>
                 </FormControl>
             </div>
