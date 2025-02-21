@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useApiCalls from "../hooks/useApiCalls";
-import DetailOverview from "./DetailOverview";
-import DetailChart from "./DetailChart";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Loading from "./Loading";
+import DetailOverview from "./DetailOverview";
+import DetailChart from "./DetailChart";
+import { FormControl, Select, MenuItem, InputLabel } from "@mui/material";
 
 const theme = createTheme({
   palette: {
@@ -18,164 +19,76 @@ const theme = createTheme({
 const Detail = () => {
   const { nodeId } = useParams();
   const { fetchNodeMetaDataById, fetchNodeChartDataById, fetchPredictedDataById, loading } = useApiCalls();
+
+  // Define state variables
   const [nodeData, setNodeData] = useState(null);
-  const [chartData, setChartData] = useState(null);
+  const [actualData, setActualData] = useState([]);
   const [predictedData, setPredictedData] = useState([]);
-  const [selectedRange, setSelectedRange] = useState("1");
-  const [chartError, setChartError] = useState(null);
   const [metadataError, setMetadataError] = useState(null);
+  const [chartError, setChartError] = useState(null);
+  const [selectedRange, setSelectedRange] = useState("10"); // Default: 10 Days
 
-  useEffect(() => {
-    setNodeData(null);
-    setChartData(null);
-    setPredictedData([]);
-  }, [nodeId]);
+  // Function to fetch data based on selected range
+  const fetchData = async (range) => {
+    if (!nodeId) return;
 
-  const formatDateTime = (timestamp) => {
-    if (!timestamp) return "N/A";
-    const date = new Date(timestamp);
-    return isNaN(date.getTime())
-      ? "Invalid Date"
-      : new Intl.DateTimeFormat("en-US", {
-          timeZone: "Asia/Kolkata",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }).format(date);
-  };
-
-  const updateChartData = (actualData, predictedData) => {
-    if (!actualData || !actualData.length) {
-      setChartError("No chart data available");
-      return;
-    }
-
-    console.log("📊 Actual Data Sample:", actualData.slice(0, 2));
-    console.log("🔮 Predicted Data Sample:", predictedData.slice(0, 2));
-
-    const validActualData = actualData.filter(
-      (entry) => entry.timestamp && !isNaN(new Date(entry.timestamp).getTime())
-    );
-
-    if (validActualData.length === 0) {
-      setChartError("No valid actual data points found");
-      return;
-    }
-
-    const datasets = [
-      {
-        label: "Actual Water Level (ft)",
-        data: validActualData.map(entry => ({
-          x: formatDateTime(entry.timestamp),
-          y: entry.waterLevel
-        })),
-        borderColor: "#06b6d4",
-        backgroundColor: "rgba(6, 182, 212, 0.2)",
-        borderWidth: 2,
-        tension: 0.4,
-        pointRadius: 3,
-      }
-    ];
-
-    if (predictedData && predictedData.length > 0) {
-      const validPredictedData = predictedData.filter(entry => 
-        entry.timestamp && 
-        !isNaN(new Date(entry.timestamp).getTime()) &&
-        entry.predictedWaterLevel !== undefined && 
-        entry.predictedWaterLevel !== null
-      );
-
-      console.log(`✅ Found ${validPredictedData.length} valid prediction points`);
-      
-      if (validPredictedData.length > 0) {
-        datasets.push({
-          label: "Predicted Water Level (ft)",
-          data: validPredictedData.map(entry => ({
-            x: formatDateTime(entry.timestamp),
-            y: entry.predictedWaterLevel
-          })),
-          borderColor: "rgb(255, 99, 132)",
-          backgroundColor: "rgba(255, 99, 132, 0.2)",
-          borderWidth: 2,
-          borderDash: [5, 5],
-          tension: 0.4,
-          pointRadius: 3,
-        });
-      }
-    }
-
-    const formattedChartData = { datasets };
-    setChartData(formattedChartData);
+    setMetadataError(null);
     setChartError(null);
-  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (nodeId) {
-        setMetadataError(null);
-        setChartError(null);
+    try {
+        // Fetch Node Metadata
+        const metaDataResponse = await fetchNodeMetaDataById(nodeId);
+        if (metaDataResponse?.data) {
+            setNodeData(metaDataResponse.data);
+        } else {
+            setMetadataError("No metadata available for this node.");
+        }
 
-        console.log(`🔍 Fetching data for nodeId: ${nodeId}, Range: ${selectedRange}`);
+        // Fetch Actual Water Levels based on selected range
+        const actualResponse = await fetchNodeChartDataById(nodeId, range);
+        if (actualResponse?.data) {
+            setActualData(actualResponse.data);
+        }
 
-        const fetchMetadata = async () => {
-          try {
-            const metaDataResponse = await fetchNodeMetaDataById(nodeId);
-            if (metaDataResponse?.data) {
-              setNodeData({ ...metaDataResponse.data });
+        // Fetch Predicted Water Levels (Handle 404 gracefully)
+        try {
+            const predictedResponse = await fetchPredictedDataById(nodeId, range);
+            if (predictedResponse?.data) {
+                setPredictedData(predictedResponse.data);
+            }
+        } catch (error) {
+            if (error.response?.status === 404) {
+                console.warn("🔍 Prediction data not found (404). Showing only actual data.");
+                setPredictedData([]); // Ensure it's empty, but don't show an error
             } else {
-              setMetadataError("No metadata available for this node");
+                setChartError("Failed to load prediction data.");
             }
-          } catch (error) {
-            console.error("❌ Error fetching node metadata:", error);
-            setMetadataError("Failed to load node information");
-          }
-        };
+        }
 
-        const fetchChartData = async () => {
-          try {
-            const chartResponse = await fetchNodeChartDataById(nodeId, selectedRange);
-            
-            if (!chartResponse?.data || chartResponse.data.length === 0) {
-              setChartError("No chart data available");
-              return;
-            }
-            
-            let predictedData = [];
-            try {
-              const predictedResponse = await fetchPredictedDataById(nodeId, selectedRange);
-              console.log("🔮 Prediction API response:", predictedResponse);
-              
-              if (predictedResponse?.data && Array.isArray(predictedResponse.data)) {
-                predictedData = predictedResponse.data;
-                setPredictedData([...predictedData]);
-                console.log(`📊 Received ${predictedData.length} prediction data points`);
-              } else {
-                console.warn("⚠️ Prediction data has unexpected format:", predictedResponse);
-              }
-            } catch (predictionError) {
-              console.warn("⚠️ Prediction data fetch failed:", predictionError);
-            }
+        // If both actual & predicted data are missing, set chart error
+        if ((!actualResponse?.data || actualResponse.data.length === 0) &&
+            predictedData.length === 0) {
+            setChartError("No actual or predicted water level data found.");
+        }
+    } catch (error) {
+        setChartError("Failed to load chart data.");
+    }
+};
 
-            updateChartData(chartResponse.data, predictedData);
-          } catch (error) {
-            console.error("❌ Error fetching chart data:", error);
-            setChartError("Failed to load chart data");
-          }
-        };
 
-        await Promise.allSettled([fetchMetadata(), fetchChartData()]);
-      }
-    };
+  // Fetch data on initial render and when selectedRange changes
+  useEffect(() => {
+    fetchData(selectedRange);
+  }, [nodeId, selectedRange]);
 
-    fetchData();
-  }, [nodeId, selectedRange, fetchNodeMetaDataById, fetchNodeChartDataById, fetchPredictedDataById]);
+  // Debugging: Log fetched data
+  useEffect(() => {
+    console.log("✅ Node Metadata:", nodeData);
+    console.log("📊 Actual Water Level Data:", actualData);
+    console.log("🔮 Predicted Water Level Data:", predictedData);
+  }, [nodeData, actualData, predictedData]);
 
   if (loading) return <Loading />;
-
-  const latestPrediction = predictedData.length > 0 ? predictedData[0] : null;
 
   return (
     <ThemeProvider theme={theme}>
@@ -191,35 +104,56 @@ const Detail = () => {
             </div>
           )}
 
-          {nodeData && (
-            <DetailOverview
-              key={nodeId}
-              nodeData={{ ...nodeData, latestPrediction }}
-              formatDateTime={formatDateTime}
-            />
-          )}
+          {nodeData && <DetailOverview nodeData={nodeData} />}
+
+          {/* Time Range Selector */}
+          <div className="flex justify-end mb-4">
+            <FormControl
+              variant="outlined"
+              sx={{
+                minWidth: 160,
+                "& .MuiInputLabel-root": { color: "#fff" },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#18181b", borderRadius: "8px" },
+                  "&:hover fieldset": { borderColor: "#18181b" },
+                  "&.Mui-focused fieldset": { borderColor: "#18181b" },
+                  color: "#fff",
+                  borderRadius: "8px",
+                },
+                "& .MuiSelect-icon": { color: "#fff" },
+                backgroundColor: "#18181b",
+                borderRadius: "8px",
+              }}
+            >
+              <InputLabel id="range-select-label">Time Range</InputLabel>
+              <Select
+                labelId="range-select-label"
+                id="range-select"
+                value={selectedRange}
+                onChange={(e) => setSelectedRange(e.target.value)}
+                label="Time Range"
+              >
+                <MenuItem value="2">2 Days</MenuItem>
+                <MenuItem value="5">5 Days</MenuItem>
+                <MenuItem value="10">10 Days</MenuItem>
+                <MenuItem value="20">20 Days</MenuItem>
+                <MenuItem value="1">1 Month</MenuItem>
+                <MenuItem value="3">3 Months</MenuItem>
+                <MenuItem value="6">6 Months</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
 
           {chartError ? (
             <div className="bg-slate-800 p-4 rounded-lg text-center">
               <p className="text-yellow-400">{chartError}</p>
             </div>
+          ) : actualData.length > 0 || predictedData.length > 0 ? (
+            <DetailChart actualData={actualData} predictedData={predictedData} />
           ) : (
-            chartData && (
-              <div className="space-y-6">
-                <DetailChart
-                  chartData={chartData}
-                  selectedRange={selectedRange}
-                  handleTimeRangeChange={(e) => setSelectedRange(e.target.value)}
-                  chartType="actual"
-                />
-                <DetailChart
-                  chartData={chartData}
-                  selectedRange={selectedRange}
-                  handleTimeRangeChange={(e) => setSelectedRange(e.target.value)}
-                  chartType="predicted"
-                />
-              </div>
-            )
+            <div className="bg-slate-800 p-4 rounded-lg text-center">
+              <p className="text-yellow-400">No chart data available.</p>
+            </div>
           )}
         </div>
       </div>

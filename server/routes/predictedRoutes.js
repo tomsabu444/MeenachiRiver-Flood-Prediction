@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const PredictedData = require("../schema/PredictionDataSchema"); 
+const PredictedData = require("../schema/PredictionDataSchema");
 
 router.get("/:nodeId", async (req, res) => {
   try {
@@ -40,31 +40,27 @@ router.get("/:nodeId", async (req, res) => {
               ]
             }
           },
-          timestamp: { $first: "$timestamp" },
-          nodeId: { $first: "$nodeId" },
-          predictedWaterLevel: { $first: "$predictedWaterLevel" }
+          waterlevel: { $first: "$predictedWaterLevel" },
+          timestamp: { $first: "$timestamp" }
         }
       },
-      { $sort: { timestamp: -1 } },
-      { $limit: 100 } // Prevent excessive data from being returned
+      { $sort: { timestamp: -1 } }
     ]);
 
-    // **Handling Case: If Not Enough Data Is Found**
     if (!predictedData || predictedData.length === 0) {
-      // Fetch **latest available** prediction data instead
-      predictedData = await PredictedData.find({ nodeId })
-        .sort({ timestamp: -1 })
-        .limit(10); // Return at least 10 latest records
-
-      if (!predictedData.length) {
-        return res.status(404).json({
-          success: false,
-          message: "No predicted data found for the given nodeId.",
-        });
-      }
+      return res.status(404).json({
+        success: false,
+        message: "No predicted data found for the given nodeId."
+      });
     }
 
-    res.json({ success: true, data: predictedData });
+    // Transform data to the required format
+    const formattedData = predictedData.map(item => ({
+      waterlevel: item.waterlevel,
+      timestamp: item.timestamp
+    }));
+
+    res.json({ success: true, nodeid: nodeId, data: formattedData });
   } catch (error) {
     console.error("Error fetching predicted water level data:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
