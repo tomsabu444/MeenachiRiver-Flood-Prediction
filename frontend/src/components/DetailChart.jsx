@@ -30,8 +30,8 @@ const DetailChart = ({ actualData, predictedData }) => {
             }))
             : [];
 
-        console.log("📊 Actual Data:", actualDataPoints);
-        console.log("🔮 Predicted Data:", predictedDataPoints.length > 0 ? predictedDataPoints : "No Prediction Data");
+        // console.log("📊 Actual Data:", actualDataPoints);
+        // console.log("🔮 Predicted Data:", predictedDataPoints.length > 0 ? predictedDataPoints : "No Prediction Data");
 
         // Create dataset array (conditionally add predicted data if available)
         const datasets = [
