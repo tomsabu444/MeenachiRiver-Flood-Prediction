@@ -29,7 +29,6 @@ router.get("/:nodeId", async (req, res) => {
       {
         $group: {
           _id: {
-            // Group by 10-minute intervals
             year: { $year: "$timestamp" },
             month: { $month: "$timestamp" },
             day: { $dayOfMonth: "$timestamp" },
@@ -41,9 +40,8 @@ router.get("/:nodeId", async (req, res) => {
               ]
             }
           },
-          timestamp: { $first: "$timestamp" },
-          nodeId: { $first: "$nodeId" },
-          waterLevel: { $first: "$waterLevel" } // Get the first water level in the group
+          waterLevel: { $first: "$waterLevel" }, // Get the first water level in the group
+          timestamp: { $first: "$timestamp" }
         }
       },
       { $sort: { timestamp: -1 } }
@@ -52,10 +50,16 @@ router.get("/:nodeId", async (req, res) => {
     if (!nodeData || nodeData.length === 0) {
       return res
         .status(404)
-        .json({ message: "No data found for the given nodeId and range." });
+        .json({ success: false, message: "No data found for the given nodeId and range." });
     }
 
-    res.json({ success: true, data: nodeData });
+    // Transform response format
+    const formattedData = nodeData.map(item => ({
+      waterlevel: item.waterLevel,
+      timestamp: item.timestamp
+    }));
+
+    res.json({ success: true, nodeid: nodeId, data: formattedData });
   } catch (error) {
     console.error("Error fetching water level data:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
