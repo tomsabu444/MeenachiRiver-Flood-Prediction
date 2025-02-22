@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import Chart from 'chart.js/auto';
-import 'chartjs-adapter-date-fns'; // Ensures time-based X-axis support
-import { format } from 'date-fns'; // Helps format timestamps
+import Chart from "chart.js/auto";
+import "chartjs-adapter-date-fns"; // Ensures time-based X-axis support
+import { format } from "date-fns"; // Helps format timestamps
 
 const DetailChart = ({ actualData, predictedData }) => {
     const chartRef = useRef(null);
@@ -30,8 +30,9 @@ const DetailChart = ({ actualData, predictedData }) => {
             }))
             : [];
 
-        // console.log("📊 Actual Data:", actualDataPoints);
-        // console.log("🔮 Predicted Data:", predictedDataPoints.length > 0 ? predictedDataPoints : "No Prediction Data");
+        // Compute the max Y-axis dynamically
+        const allYValues = [...actualDataPoints, ...predictedDataPoints].map(point => point.y);
+        const maxY = allYValues.length > 0 ? Math.max(...allYValues) : 10; // Default max if no data
 
         // Create dataset array (conditionally add predicted data if available)
         const datasets = [
@@ -63,56 +64,56 @@ const DetailChart = ({ actualData, predictedData }) => {
 
         // Create new Chart instance
         chartInstance.current = new Chart(chartRef.current, {
-            type: 'line',
+            type: "line",
             data: {
-                datasets: datasets
+                datasets: datasets,
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        type: 'time',
+                        type: "time",
                         time: {
-                            tooltipFormat: 'dd/MM/yy hh:mm a',
+                            tooltipFormat: "dd/MM/yy hh:mm a",
                         },
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return format(new Date(value), "d/MM/yy h:mm a");
                             },
-                            color: '#fff',
+                            color: "#fff",
                             maxTicksLimit: 8,
                             autoSkip: true,
                         },
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)',
+                            color: "rgba(255, 255, 255, 0.1)",
                         },
                     },
                     y: {
-                        min: 0,
-                        suggestedMax: 10,
+                        min: 0, // Ensures 0 is always at the bottom
+                        suggestedMax: maxY + 2, // Dynamic upper limit with a small buffer
                         ticks: {
-                            color: '#fff',
-                            stepSize: 2,
+                            color: "#fff",
+                            stepSize: Math.max(1, Math.ceil(maxY / 5)), // Auto-adjust step size
                         },
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)',
+                            color: "rgba(255, 255, 255, 0.1)",
                         },
                         title: {
                             display: true,
-                            text: 'Water Level (feet)',
-                            color: '#fff',
+                            text: "Water Level (feet)",
+                            color: "#fff",
                         },
                     },
                 },
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#fff',
+                            color: "#fff",
                         },
                     },
                     tooltip: {
-                        mode: 'index',
+                        mode: "index",
                         intersect: false,
                     },
                 },
