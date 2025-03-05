@@ -133,13 +133,14 @@ const Detail = () => {
                 onChange={(e) => setSelectedRange(e.target.value)}
                 label="Time Range"
               >
+                <MenuItem value="1">1 Day</MenuItem> 
                 <MenuItem value="2">2 Days</MenuItem>
                 <MenuItem value="5">5 Days</MenuItem>
                 <MenuItem value="10">10 Days</MenuItem>
                 <MenuItem value="20">20 Days</MenuItem>
-                <MenuItem value="1">1 Month</MenuItem>
-                <MenuItem value="3">3 Months</MenuItem>
-                <MenuItem value="6">6 Months</MenuItem>
+                <MenuItem value="30">1 Month</MenuItem>
+                <MenuItem value="90">3 Months</MenuItem>
+                <MenuItem value="180">6 Months</MenuItem>
               </Select>
             </FormControl>
           </div>

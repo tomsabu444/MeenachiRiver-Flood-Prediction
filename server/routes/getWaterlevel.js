@@ -8,12 +8,13 @@ router.get("/:nodeId", async (req, res) => {
     const { range } = req.query;
 
     let daysToFilter = 30; // Default to 30 days
+    if (range === "1") daysToFilter = 1;
     if (range === "2") daysToFilter = 2;
     else if (range === "5") daysToFilter = 5;
     else if (range === "10") daysToFilter = 10;
     else if (range === "20") daysToFilter = 20;
-    else if (range === "3") daysToFilter = 90;
-    else if (range === "6") daysToFilter = 180;
+    else if (range === "90") daysToFilter = 90;
+    else if (range === "180") daysToFilter = 180;
 
     const fromDate = new Date();
     fromDate.setDate(fromDate.getDate() - daysToFilter);
