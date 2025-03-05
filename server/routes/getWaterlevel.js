@@ -7,17 +7,28 @@ router.get("/:nodeId", async (req, res) => {
     const { nodeId } = req.params;
     const { range } = req.query;
 
-    let daysToFilter = 30; // Default to 30 days
-    if (range === "1") daysToFilter = 1;
-    if (range === "2") daysToFilter = 2;
+    let fromDate = new Date();
+    let hoursToFilter = null; // Used for hour-based filtering
+    let daysToFilter = null; // Used for day-based filtering
+
+    if (range === "3h") hoursToFilter = 3;
+    else if (range === "6h") hoursToFilter = 6;
+    else if (range === "12h") hoursToFilter = 12;
+    else if (range === "1") daysToFilter = 1;
+    else if (range === "2") daysToFilter = 2;
     else if (range === "5") daysToFilter = 5;
     else if (range === "10") daysToFilter = 10;
     else if (range === "20") daysToFilter = 20;
+    else if (range === "30") daysToFilter = 30;
     else if (range === "90") daysToFilter = 90;
     else if (range === "180") daysToFilter = 180;
 
-    const fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - daysToFilter);
+    // Apply hour-based or day-based filtering
+    if (hoursToFilter !== null) {
+      fromDate.setHours(fromDate.getHours() - hoursToFilter);
+    } else if (daysToFilter !== null) {
+      fromDate.setDate(fromDate.getDate() - daysToFilter);
+    }
 
     // Aggregate to get data points at 10-minute intervals
     const nodeData = await NodeDataSchema.aggregate([
