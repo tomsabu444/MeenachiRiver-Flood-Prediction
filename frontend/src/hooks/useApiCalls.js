@@ -92,12 +92,29 @@ const useApiCalls = () => {
     }
   }, []);
 
+  const fetchHourlyData = useCallback(async (nodeId, date) => {
+    setLoading(true);
+    try {
+      // Adjust the path to match your Express route
+      const response = await axios.get(
+        `${SERVER_BASE_URL}/v1/water-level/hourly-average/${nodeId}/${date}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch hourly data:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     fetchNodeMetaData,
     fetchNodeMetaDataById,
     fetchNodeChartDataById,
-    fetchPredictedDataById, // Added prediction API
+    fetchPredictedDataById,
     postAlertPreferences,
+    fetchHourlyData,
     loading,
   };
 };

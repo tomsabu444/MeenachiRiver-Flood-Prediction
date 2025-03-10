@@ -7,6 +7,7 @@ import Layout from "./components/layout";
 import Detail from "./components/Detail";
 import AlertPage from "./page/AlertPage";
 import AutoPopupAlert from "./components/AutoPopupAlert";
+import HourlyAveraged from "./page/HourlyAveraged";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +20,7 @@ function App() {
         </Route>
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/alert" element={<AlertPage/>} />
+          <Route path="/hourlyaverage" element={<HourlyAveraged/>} />
       </Routes>
     </BrowserRouter>
   );
