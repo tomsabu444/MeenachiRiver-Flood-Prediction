@@ -19,7 +19,8 @@ const HourlyAveragedChartWithDownload = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [chartData, setChartData] = useState([]);
 
-  const chartRef = useRef(null);
+  // Ref specifically for the chart content only
+  const chartContentRef = useRef(null);
 
   useEffect(() => {
     const fetchNodes = async () => {
@@ -63,9 +64,27 @@ const HourlyAveragedChartWithDownload = () => {
   };
 
   const handleDownload = async () => {
-    if (!chartRef.current) return;
+    if (!chartContentRef.current) return;
+    
     try {
-      const dataUrl = await toPng(chartRef.current);
+      // Apply specific styling for the export to make it look better
+      const originalStyle = chartContentRef.current.style.backgroundColor;
+      chartContentRef.current.style.backgroundColor = "white";
+      
+      const dataUrl = await toPng(chartContentRef.current, {
+        quality: 1.0,
+        pixelRatio: 2, // Higher resolution
+        style: {
+          // Remove any padding to capture just the chart
+          margin: 0,
+          padding: 0
+        }
+      });
+      
+      // Restore original styling
+      chartContentRef.current.style.backgroundColor = originalStyle;
+      
+      // Create download link
       const link = document.createElement("a");
       link.download = `water-level-${selectedNodeId}-${selectedDate}.png`;
       link.href = dataUrl;
@@ -83,7 +102,7 @@ const HourlyAveragedChartWithDownload = () => {
   };
 
   return (
-    <div className=" max-w-fit mx-auto p-6 flex flex-col items-center">
+    <div className="max-w-fit mx-auto p-6 flex flex-col items-center">
       <h2 className="text-3xl font-bold mb-6">Hourly Averaged Water Level</h2>
 
       {/* Node Dropdown */}
@@ -131,15 +150,14 @@ const HourlyAveragedChartWithDownload = () => {
 
       {chartData.length > 0 && (
         <div className="w-full flex flex-col items-center">
-          {/* Chart container with increased fixed width */}
-          <div
-            ref={chartRef}
-            className="bg-white p-6 shadow-lg rounded-lg w-full mb-6 overflow-x-auto"
-          >
+          {/* Chart container with the chart only */}
+          <div className="bg-white p-6 shadow-lg rounded-lg w-full mb-6 overflow-x-auto">
             <h3 className="text-2xl font-semibold mb-4 text-center">
               Hourly Data for {selectedNodeId} on {selectedDate}
             </h3>
-            <div style={{ width: 1600 }}>
+            
+            {/* This is the chart content that will be exported */}
+            <div ref={chartContentRef} style={{ width: 1600, backgroundColor: "white" }}>
               <ResponsiveContainer width="100%" height={400}>
                 <LineChart
                   data={chartData}
@@ -186,7 +204,7 @@ const HourlyAveragedChartWithDownload = () => {
             onClick={handleDownload}
             className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded"
           >
-            Download as PNG
+            Download Chart as PNG
           </button>
         </div>
       )}
