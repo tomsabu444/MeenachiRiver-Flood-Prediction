@@ -18,6 +18,7 @@ const HourlyAveragedChartWithDownload = () => {
   const [selectedNodeId, setSelectedNodeId] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [chartData, setChartData] = useState([]);
+  const [hasData, setHasData] = useState(false);
 
   // Ref specifically for the chart content only
   const chartContentRef = useRef(null);
@@ -58,8 +59,13 @@ const HourlyAveragedChartWithDownload = () => {
       const result = await fetchHourlyData(selectedNodeId, selectedDate);
       const fullData = fillChartData(result.data || []);
       setChartData(fullData);
+      
+      // Check if we have any non-null avgWaterLevel values
+      const dataExists = fullData.some(item => item.avgWaterLevel !== null);
+      setHasData(dataExists);
     } catch (error) {
       console.error("Error fetching hourly data:", error);
+      setHasData(false);
     }
   };
 
@@ -158,54 +164,64 @@ const HourlyAveragedChartWithDownload = () => {
             
             {/* This is the chart content that will be exported */}
             <div ref={chartContentRef} style={{ width: 1600, backgroundColor: "white" }}>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart
-                  data={chartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="hour"
-                    tickFormatter={formatHour}
-                    ticks={[
-                      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-                      12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
-                    ]}
-                    interval={0}
-                    label={{
-                      value: "Time (12-hr format)",
-                      position: "insideBottom",
-                      offset: -5,
-                      fontSize: 12,
-                    }}
-                  />
-                  <YAxis
-                    label={{
-                      value: "Avg Water Level (feet)",
-                      angle: -90,
-                      position: "insideLeft",
-                      fontSize: 12,
-                    }}
-                  />
-                  <Tooltip labelFormatter={formatHour} />
-                  <Line
-                    type="monotone"
-                    dataKey="avgWaterLevel"
-                    stroke="#28a745"
-                    strokeWidth={3}
-                    dot={{ r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {hasData ? (
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart
+                    data={chartData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="hour"
+                      tickFormatter={formatHour}
+                      ticks={[
+                        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+                        12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
+                      ]}
+                      interval={0}
+                      label={{
+                        value: "Time (12-hr format)",
+                        position: "insideBottom",
+                        offset: -5,
+                        fontSize: 12,
+                      }}
+                    />
+                    <YAxis
+                      label={{
+                        value: "Avg Water Level (feet)",
+                        angle: -90,
+                        position: "insideLeft",
+                        fontSize: 12,
+                      }}
+                    />
+                    <Tooltip labelFormatter={formatHour} />
+                    <Line
+                      type="monotone"
+                      dataKey="avgWaterLevel"
+                      stroke="#28a745"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex justify-center items-center h-96 w-full">
+                  <p className="text-2xl text-gray-500 font-semibold">
+                    No data available for the selected date
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
-          <button
-            onClick={handleDownload}
-            className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded"
-          >
-            Download Chart as PNG
-          </button>
+          {hasData && (
+            <button
+              onClick={handleDownload}
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded"
+            >
+              Download Chart as PNG
+            </button>
+          )}
         </div>
       )}
     </div>
