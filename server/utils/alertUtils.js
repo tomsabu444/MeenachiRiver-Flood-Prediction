@@ -12,7 +12,7 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
     // Fetch node metadata for alert thresholds and location data
     const nodeMetadata = await NodeMetadata.findOne({ nodeId });
     if (!nodeMetadata) {
-      console.error(`No metadata found for nodeId: ${nodeId}`);
+    //   console.error(`No metadata found for nodeId: ${nodeId}`);
       return;
     }
 
