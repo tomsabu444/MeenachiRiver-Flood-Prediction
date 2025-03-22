@@ -1,5 +1,6 @@
 const express = require('express');
 const IotNodeData = require('../schema/NodeDataSchema');
+const { checkAndSendAlerts } = require('../utils/alertUtils');
 
 const router = express.Router();
 
@@ -55,6 +56,9 @@ router.post('/', async (req, res) => {
 
     // Save to database
     const savedData = await newNodeData.save();
+
+    // Check alert levels and send notifications
+    await checkAndSendAlerts(nodeId, waterLevel);
 
     res.status(201).json({
       message: 'Data saved successfully',

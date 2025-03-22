@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import useApiCalls from "../hooks/useApiCalls"; 
 import { Snackbar, Alert } from "@mui/material"; 
 import { useNavigate } from "react-router-dom";
+import { parsePhoneNumberFromString, AsYouType, getCountries, getCountryCallingCode } from 'libphonenumber-js';
 
 function AlertPage() {
   const { fetchNodeMetaData, postAlertPreferences, loading } = useApiCalls(); 
@@ -9,12 +10,15 @@ function AlertPage() {
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
+    countryCode: "IN", // Default country code set to India
     locations: [],  // Storing nodeIds
   });
   const [nodeMetadata, setNodeMetadata] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState(""); 
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); 
+  const [phoneInputValue, setPhoneInputValue] = useState("");
+  const [countries, setCountries] = useState([]);
 
   // Fetch the node metadata when the component mounts
   useEffect(() => {
@@ -27,10 +31,80 @@ function AlertPage() {
       }
     };
     fetchData();
+
+    // Get list of countries for dropdown
+    setCountries(getCountries());
   }, [fetchNodeMetaData]);
+
+  // Update phone when country code changes
+  useEffect(() => {
+    if (phoneInputValue) {
+      updatePhoneWithCountryCode(phoneInputValue);
+    }
+  }, [formData.countryCode]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handlePhoneChange = (e) => {
+    const input = e.target.value;
+    // Only allow digits
+    const digitsOnly = input.replace(/\D/g, '');
+    setPhoneInputValue(digitsOnly);
+    updatePhoneWithCountryCode(digitsOnly);
+  };
+
+  const handlePhoneBlur = (e) => {
+    // When the field loses focus, check for autofill patterns
+    const value = e.target.value;
+    
+    // Check if there's a full phone number with country code that might be autofilled
+    const match = value.match(/^\+(\d+)0?(\d+)$/);
+    if (match) {
+      const countryCodePart = match[1];
+      const numberPart = match[2];
+      
+      // Find the country in our list
+      const country = countries.find(c => getCountryCallingCode(c) === countryCodePart);
+      
+      if (country) {
+        // Update the country code dropdown
+        setFormData(prev => ({
+          ...prev, 
+          countryCode: country
+        }));
+        
+        // Remove any leading zeros
+        setPhoneInputValue(numberPart);
+        
+        // Update the full phone with correct format
+        setFormData(prev => ({
+          ...prev,
+          phone: `+${countryCodePart}${numberPart}`
+        }));
+      }
+    }
+  };
+
+  const updatePhoneWithCountryCode = (phoneInput) => {
+    // Handle case where user or autofill might add a leading 0
+    const sanitizedInput = phoneInput.replace(/^0/, '');
+    
+    // Format without spaces, just +[countrycode][number]
+    try {
+      const countryCode = getCountryCallingCode(formData.countryCode);
+      setFormData(prev => ({
+        ...prev,
+        phone: `+${countryCode}${sanitizedInput}`
+      }));
+    } catch (error) {
+      console.error("Error formatting phone number:", error);
+    }
+  };
+
+  const handleCountryChange = (e) => {
+    setFormData({ ...formData, countryCode: e.target.value });
   };
 
   const handleLocationChange = (nodeId) => {
@@ -45,31 +119,46 @@ function AlertPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Call the postAlertPreferences function from the custom hook
-      const response = await postAlertPreferences(formData.email, formData.phone, formData.locations);
+      // Call the postAlertPreferences function with the complete phone number
+      const response = await postAlertPreferences(
+        formData.email, 
+        formData.phone, // Contains country code + phone number without spaces
+        formData.locations
+      );
       console.log("Alert preferences submitted:", response);
       
       // Set success message
       setSnackbarMessage("Your alert preferences have been successfully submitted!");
-      setSnackbarSeverity("success"); // Success severity
-      setOpenSnackbar(true); // Show the Snackbar
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
 
       // Clear the form
       setFormData({
         email: "",
         phone: "",
+        countryCode: "IN", // Reset to India as default
         locations: [],
       });
+      setPhoneInputValue("");
 
       setTimeout(() => {
         navigate("/"); 
       }, 2000);
     } catch (error) {
       console.error("Error submitting alert preferences:", error);
-      // Set error message
       setSnackbarMessage("Error submitting alert preferences. Please try again.");
-      setSnackbarSeverity("error"); // Error severity
-      setOpenSnackbar(true); // Show the Snackbar
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    }
+  };
+
+  // Get country name for display
+  const getCountryName = (countryCode) => {
+    const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+    try {
+      return regionNames.of(countryCode);
+    } catch (e) {
+      return countryCode;
     }
   };
 
@@ -84,30 +173,52 @@ function AlertPage() {
         <h2 className="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6 text-center text-gray-100">Alert</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="block text-gray-300 text-base sm:text-lg mb-2">Email ID:</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-base sm:text-lg"
-                required
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-gray-300 text-base sm:text-lg mb-2">Phone Number:</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-base sm:text-lg"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-gray-300 text-base sm:text-lg mb-2">Email ID:</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-base sm:text-lg"
+              required
+            />
           </div>
+          
+          <div>
+            <label className="block text-gray-300 text-base sm:text-lg mb-2">Phone Number:</label>
+            <div className="flex space-x-2">
+              <div className="w-1/3">
+                <select
+                  name="countryCode"
+                  value={formData.countryCode}
+                  onChange={handleCountryChange}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-base sm:text-lg"
+                >
+                  {countries.map((country) => (
+                    <option key={country} value={country}>
+                      {getCountryName(country)} (+{getCountryCallingCode(country)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-2/3">
+                <input
+                  type="tel"
+                  value={phoneInputValue}
+                  onChange={handlePhoneChange}
+                  onBlur={handlePhoneBlur}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-100 appearance-none shadow-md cursor-pointer border-gray-600 text-base sm:text-lg"
+                  placeholder="Phone number (digits only)"
+                  required
+                />
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              Full number: {formData.phone || `+${getCountryCallingCode(formData.countryCode)}`}
+            </p>
+          </div>
+          
           <div>
             <label className="block text-gray-300 text-base sm:text-lg mb-2">Locations for Alerts:</label>
             <div className="bg-gray-700 rounded-lg border border-gray-600 p-3 sm:p-4 max-h-36 sm:max-h-48 overflow-y-auto">
@@ -158,7 +269,7 @@ function AlertPage() {
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)} // Close Snackbar after 6 seconds
+        onClose={() => setOpenSnackbar(false)}
       >
         <Alert onClose={() => setOpenSnackbar(false)} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
