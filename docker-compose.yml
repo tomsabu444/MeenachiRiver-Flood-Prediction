@@ -8,3 +8,11 @@ services:
     command: python forecast.py
     volumes:
       - ./prediction:/app
+  anomaly_cleaner:
+    build: ./anomaly
+    container_name: anomaly-cleaner-runner
+    env_file:
+      - ./server/.env
+    command: python anomaly_cleaner.py
+    volumes:
+      - ./anomaly:/app
