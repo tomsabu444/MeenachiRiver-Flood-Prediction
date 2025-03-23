@@ -24,17 +24,17 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
     const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
     // Common heading
-    const heading = "🌊 *Meenachil River Flood Alert* 🌊";
+    const heading = "🌊 Meenachil River Flood Alert 🌊";
 
     if (waterLevel >= red_alert) {
       alertLevel = 'Red';
-      alertMessage = `${heading}\n\n🚨 *RED ALERT* 🚨\nLocation: ${locationName}\nWater Level: ${waterLevel} (Critical: ${red_alert})\nStatus: Immediate action required!\n\n🔗 More Info: ${websiteLink}\n📍 Location: ${googleMapsLink}`;
+      alertMessage = `${heading}. RED ALERT. Location: ${locationName}. Water Level: ${waterLevel} (Critical: ${red_alert}). Immediate action required.`;
     } else if (waterLevel >= orange_alert) {
       alertLevel = 'Orange';
-      alertMessage = `${heading}\n\n⚠️ *ORANGE ALERT* ⚠️\nLocation: ${locationName}\nWater Level: ${waterLevel} (Warning: ${orange_alert})\nStatus: Stay vigilant.\n\n🔗 More Info: ${websiteLink}\n📍 Location: ${googleMapsLink}`;
+      alertMessage = `${heading}. ORANGE ALERT. Location: ${locationName}. Water Level: ${waterLevel} (Warning: ${orange_alert}). Stay vigilant.`;
     } else if (waterLevel >= yellow_alert) {
       alertLevel = 'Yellow';
-      alertMessage = `${heading}\n\n🔔 *YELLOW ALERT* 🔔\nLocation: ${locationName}\nWater Level: ${waterLevel} (Caution: ${yellow_alert})\nStatus: Monitor closely.\n\n🔗 More Info: ${websiteLink}\n📍 Location: ${googleMapsLink}`;
+      alertMessage = `${heading}. YELLOW ALERT. Location: ${locationName}. Water Level: ${waterLevel} (Caution: ${yellow_alert}). Monitor closely.`;
     }
 
     if (!alertLevel) {
@@ -49,10 +49,10 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
       return;
     }
 
-    // Send WhatsApp & SMS messages
+    // Send WhatsApp, SMS & Calls
     const sendPromises = subscribers.map(async (subscriber) => {
       const { phone } = subscriber;
-      
+
       try {
         // Send WhatsApp Message
         await client.messages.create({
@@ -65,10 +65,18 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
         // Send SMS Message
         await client.messages.create({
           body: alertMessage,
-          from: process.env.TWILIO_SMS_NUMBER, // Make sure this number has SMS capability
-          to: phone, // Phone number in international format, e.g., +919876543210
+          from: process.env.TWILIO_SMS_NUMBER,
+          to: phone,
         });
         console.log(`SMS alert sent to ${phone} for ${nodeId}`);
+
+        // Make Voice Call Alert
+        await client.calls.create({
+          twiml: `<Response><Say voice="Polly.Matthew">${alertMessage}</Say></Response>`,
+          from: process.env.TWILIO_CALL_NUMBER, // Twilio Verified Number for Calls
+          to: phone,
+        });
+        console.log(`Voice call alert sent to ${phone} for ${nodeId}`);
 
       } catch (error) {
         console.error(`Failed to send message to ${phone}:`, error.message);
