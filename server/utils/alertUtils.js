@@ -73,12 +73,12 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
         // Make Voice Call Alert
         await client.calls.create({
           twiml: `<Response><Say voice="Polly.Matthew">
-                  Attention! This is a ${alertLevel} alert for ${locationName}. 
+                  Attention! Attention!, This is a ${alertLevel} alert for ${locationName}. 
                   The water level is rising rapidly. 
                   Current level: ${waterLevel}. 
                   Please take necessary precautions immediately!
                   </Say></Response>`,
-          from: process.env.TWILIO_CALL_NUMBER, // Twilio Verified Number for Calls
+          from: process.env.TWILIO_SMS_NUMBER, // Twilio Verified Number for Calls
           to: phone,
         });
         console.log(`Voice call alert sent to ${phone} for ${nodeId}`);
