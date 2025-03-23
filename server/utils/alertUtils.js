@@ -11,10 +11,7 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
   try {
     // Fetch node metadata for alert thresholds and location data
     const nodeMetadata = await NodeMetadata.findOne({ nodeId });
-    if (!nodeMetadata) {
-    //   console.error(`No metadata found for nodeId: ${nodeId}`);
-      return;
-    }
+    if (!nodeMetadata) return;
 
     const { yellow_alert, orange_alert, red_alert, locationName, latitude, longitude } = nodeMetadata;
 
@@ -40,7 +37,6 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
       alertMessage = `${heading}\n\n🔔 *YELLOW ALERT* 🔔\nLocation: ${locationName}\nWater Level: ${waterLevel} (Caution: ${yellow_alert})\nStatus: Monitor closely.\n\n🔗 More Info: ${websiteLink}\n📍 Location: ${googleMapsLink}`;
     }
 
-    // If no alert level is triggered, exit
     if (!alertLevel) {
       console.log(`Water level (${waterLevel}) at ${nodeId} is below alert thresholds.`);
       return;
@@ -53,18 +49,29 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
       return;
     }
 
-    // Send WhatsApp messages to all subscribers
+    // Send WhatsApp & SMS messages
     const sendPromises = subscribers.map(async (subscriber) => {
       const { phone } = subscriber;
+      
       try {
+        // Send WhatsApp Message
         await client.messages.create({
           body: alertMessage,
           from: process.env.TWILIO_WHATSAPP_NUMBER,
           to: `whatsapp:${phone}`,
         });
         console.log(`WhatsApp alert sent to ${phone} for ${nodeId}`);
+
+        // Send SMS Message
+        await client.messages.create({
+          body: alertMessage,
+          from: process.env.TWILIO_SMS_NUMBER, // Make sure this number has SMS capability
+          to: phone, // Phone number in international format, e.g., +919876543210
+        });
+        console.log(`SMS alert sent to ${phone} for ${nodeId}`);
+
       } catch (error) {
-        console.error(`Failed to send WhatsApp to ${phone}:`, error.message);
+        console.error(`Failed to send message to ${phone}:`, error.message);
       }
     });
 
