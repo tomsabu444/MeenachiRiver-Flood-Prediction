@@ -24,17 +24,17 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
     const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
     // Common heading
-    const heading = "🌊 Meenachil River Flood Alert 🌊";
+    const heading = "🌊 *Meenachil River Flood Alert* 🌊";
 
     if (waterLevel >= red_alert) {
       alertLevel = 'Red';
-      alertMessage = `${heading}. RED ALERT. Location: ${locationName}. Water Level: ${waterLevel} (Critical: ${red_alert}). Immediate action required.`;
+      alertMessage = `${heading}\n\n🚨 *RED ALERT* 🚨\nLocation: ${locationName}\nWater Level: ${waterLevel} (Critical: ${red_alert})\nStatus: Immediate action required!\n\n🔗 More Info: ${websiteLink}\n📍 Location: ${googleMapsLink}`;
     } else if (waterLevel >= orange_alert) {
       alertLevel = 'Orange';
-      alertMessage = `${heading}. ORANGE ALERT. Location: ${locationName}. Water Level: ${waterLevel} (Warning: ${orange_alert}). Stay vigilant.`;
+      alertMessage = `${heading}\n\n⚠️ *ORANGE ALERT* ⚠️\nLocation: ${locationName}\nWater Level: ${waterLevel} (Warning: ${orange_alert})\nStatus: Stay vigilant.\n\n🔗 More Info: ${websiteLink}\n📍 Location: ${googleMapsLink}`;
     } else if (waterLevel >= yellow_alert) {
       alertLevel = 'Yellow';
-      alertMessage = `${heading}. YELLOW ALERT. Location: ${locationName}. Water Level: ${waterLevel} (Caution: ${yellow_alert}). Monitor closely.`;
+      alertMessage = `${heading}\n\n🔔 *YELLOW ALERT* 🔔\nLocation: ${locationName}\nWater Level: ${waterLevel} (Caution: ${yellow_alert})\nStatus: Monitor closely.\n\n🔗 More Info: ${websiteLink}\n📍 Location: ${googleMapsLink}`;
     }
 
     if (!alertLevel) {
