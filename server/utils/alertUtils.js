@@ -49,10 +49,10 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
       return;
     }
 
-    // Send WhatsApp & SMS messages
+    // Send WhatsApp, SMS & Calls
     const sendPromises = subscribers.map(async (subscriber) => {
       const { phone } = subscriber;
-      
+
       try {
         // Send WhatsApp Message
         await client.messages.create({
@@ -65,10 +65,23 @@ const checkAndSendAlerts = async (nodeId, waterLevel) => {
         // Send SMS Message
         await client.messages.create({
           body: alertMessage,
-          from: process.env.TWILIO_SMS_NUMBER, // Make sure this number has SMS capability
-          to: phone, // Phone number in international format, e.g., +919876543210
+          from: process.env.TWILIO_SMS_NUMBER,
+          to: phone,
         });
         console.log(`SMS alert sent to ${phone} for ${nodeId}`);
+
+        // Make Voice Call Alert
+        await client.calls.create({
+          twiml: `<Response><Say voice="Polly.Matthew">
+                  Attention! Attention!, This is a ${alertLevel} alert for ${locationName}. 
+                  The water level is rising rapidly. 
+                  Current level: ${waterLevel}. 
+                  Please take necessary precautions immediately!
+                  </Say></Response>`,
+          from: process.env.TWILIO_SMS_NUMBER, // Twilio Verified Number for Calls
+          to: phone,
+        });
+        console.log(`Voice call alert sent to ${phone} for ${nodeId}`);
 
       } catch (error) {
         console.error(`Failed to send message to ${phone}:`, error.message);
