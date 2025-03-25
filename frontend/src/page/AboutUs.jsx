@@ -1,4 +1,14 @@
 import React from "react";
+import RiverFlowImage from '../assets/About/river-flow.jpeg';
+import VillageLifeImage from '../assets/About/village-life.jpeg';
+import SensorTechImage from '../assets/About/village-life.jpeg';
+import DataFlowImage from '../assets/About/village-life.jpeg';
+import AlertFlashImage from '../assets/About/village-life.jpeg';
+import WarningUIImage from '../assets/About/village-life.jpeg';
+import DashboardImage from '../assets/About/village-life.jpeg';
+import AnalyticsImage from '../assets/About/village-life.jpeg';
+import CommunityImage from '../assets/About/village-life.jpeg';
+import FutureHopeImage from '../assets/About/village-life.jpeg';
 
 function AboutUs() {
   return (
@@ -23,17 +33,21 @@ function AboutUs() {
             <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-cyan-500/20 transition-shadow duration-300">
               <h2 className="text-2xl lg:text-3xl font-bold text-cyan-400 mb-3">Our Roots</h2>
               <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
-                We’re pioneers safeguarding the Meenachil River communities with a revolutionary water monitoring and flood prediction system fueled by next-gen tech.
+                We're pioneers safeguarding the Meenachil River communities with a revolutionary water monitoring and flood prediction system fueled by next-gen tech.
               </p>
             </div>
             {/* Multi-Image Carousel */}
             <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [River Flow]
-              </div>
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Village Life]
-              </div>
+              <img 
+                src={RiverFlowImage} 
+                alt="River Flow" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={VillageLifeImage} 
+                alt="Village Life" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
             </div>
           </div>
 
@@ -49,12 +63,16 @@ function AboutUs() {
               </p>
             </div>
             <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Sensor Tech]
-              </div>
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Data Flow]
-              </div>
+              <img 
+                src={SensorTechImage} 
+                alt="Sensor Tech" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={DataFlowImage} 
+                alt="Data Flow" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
             </div>
           </div>
 
@@ -70,12 +88,16 @@ function AboutUs() {
               </p>
             </div>
             <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Alert Flash]
-              </div>
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Warning UI]
-              </div>
+              <img 
+                src={AlertFlashImage} 
+                alt="Alert Flash" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={WarningUIImage} 
+                alt="Warning UI" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
             </div>
           </div>
 
@@ -91,12 +113,16 @@ function AboutUs() {
               </p>
             </div>
             <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Dashboard]
-              </div>
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Analytics]
-              </div>
+              <img 
+                src={DashboardImage} 
+                alt="Dashboard" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={AnalyticsImage} 
+                alt="Analytics" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
             </div>
           </div>
 
@@ -108,16 +134,20 @@ function AboutUs() {
             <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-amber-500/20 transition-shadow duration-300">
               <h2 className="text-2xl lg:text-3xl font-bold text-amber-400 mb-3">Our Vision</h2>
               <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
-                We’re here to save lives, boost resilience, and redefine flood management for vulnerable regions across the globe.
+                We're here to save lives, boost resilience, and redefine flood management for vulnerable regions across the globe.
               </p>
             </div>
             <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Community]
-              </div>
-              <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gray-700 rounded-lg flex-shrink-0 snap-center flex items-center justify-center text-gray-400 text-xs lg:text-sm">
-                [Future Hope]
-              </div>
+              <img 
+                src={CommunityImage} 
+                alt="Community" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={FutureHopeImage} 
+                alt="Future Hope" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
             </div>
           </div>
         </div>
