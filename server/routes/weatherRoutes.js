@@ -29,11 +29,17 @@ const fetchHourlyForecast = async (latitude, longitude) => {
     const response = await axios.get(url);
     console.log("Hourly forecast fetched successfully.");
 
-    // Extract next 24 hours forecast
+    // Extract next 24 hours forecast (API provides data every 3 hours)
     const next24Hours = response.data.list.slice(0, 8).map((hour) => ({
       time: new Date(hour.dt * 1000).toLocaleTimeString(),
       temperature: hour.main.temp,
+      feelsLike: hour.main.feels_like,
       weather: hour.weather[0].description,
+      cloudCover: hour.clouds.all,
+      windSpeed: hour.wind.speed,
+      windGusts: hour.wind.gust || "N/A",
+      rainVolume: hour.rain?.["3h"] || "No rain",
+      snowVolume: hour.snow?.["3h"] || "No snow",
     }));
 
     return next24Hours;
@@ -53,13 +59,20 @@ router.get("/:lat/:lon", async (req, res) => {
     const currentWeather = await fetchCurrentWeather(lat, lon);
     const next24Hours = await fetchHourlyForecast(lat, lon);
 
-    // Structure response
+    // Structure response with additional details
     const weatherResponse = {
+      location: currentWeather.name,
       currentWeather: {
         temperature: currentWeather.main.temp,
+        feelsLike: currentWeather.main.feels_like,
         humidity: currentWeather.main.humidity,
+        pressure: currentWeather.main.pressure,
+        visibility: currentWeather.visibility,
         weather: currentWeather.weather[0].description,
         windSpeed: currentWeather.wind.speed,
+        windGusts: currentWeather.wind.gust || "N/A",
+        sunrise: new Date(currentWeather.sys.sunrise * 1000).toLocaleTimeString(),
+        sunset: new Date(currentWeather.sys.sunset * 1000).toLocaleTimeString(),
       },
       next24Hours,
     };
@@ -73,3 +86,4 @@ router.get("/:lat/:lon", async (req, res) => {
 });
 
 module.exports = router;
+    
