@@ -9,10 +9,8 @@ const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
 const fetchCurrentWeather = async (latitude, longitude) => {
   try {
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHER_API_KEY}`;
-    console.log(`Fetching current weather: ${url}`);
 
     const response = await axios.get(url);
-    console.log("Current weather fetched successfully.");
     return response.data;
   } catch (error) {
     console.error("Error fetching current weather:", error.message);
@@ -24,10 +22,8 @@ const fetchCurrentWeather = async (latitude, longitude) => {
 const fetchHourlyForecast = async (latitude, longitude) => {
   try {
     const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHER_API_KEY}`;
-    console.log(`Fetching hourly forecast: ${url}`);
 
     const response = await axios.get(url);
-    console.log("Hourly forecast fetched successfully.");
 
     // Extract next 24 hours forecast (API provides data every 3 hours)
     const next24Hours = response.data.list.slice(0, 8).map((hour) => ({
@@ -53,7 +49,6 @@ const fetchHourlyForecast = async (latitude, longitude) => {
 router.get("/:lat/:lon", async (req, res) => {
   try {
     const { lat, lon } = req.params;
-    console.log(`Received weather request - Lat: ${lat}, Lon: ${lon}`);
 
     // Fetch current weather and forecast
     const currentWeather = await fetchCurrentWeather(lat, lon);
@@ -77,7 +72,6 @@ router.get("/:lat/:lon", async (req, res) => {
       next24Hours,
     };
 
-    console.log("Weather data processed successfully.");
     res.json(weatherResponse);
   } catch (error) {
     console.error("Error processing weather request:", error.message);

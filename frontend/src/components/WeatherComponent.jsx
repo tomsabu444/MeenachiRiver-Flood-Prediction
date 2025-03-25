@@ -25,7 +25,12 @@ const Weather = ({ latitude, longitude }) => {
     getWeather();
   }, [latitude, longitude, fetchWeatherByCoords]);
 
-  if (loading) return <p>Loading weather...</p>;
+  if (loading)
+    return (
+      <div className={` px-28 py-5 flex items-center justify-center`}>
+        <div className="w-16 h-16 rounded-full border-t-4 border-l-4 border-gray-900 border-opacity-100 border-r-transparent animate-spin"></div>
+      </div>
+    );
   if (error) return <p className="text-red-500">{error}</p>;
   if (!weatherData) return <p>No weather data available</p>;
 
@@ -33,10 +38,10 @@ const Weather = ({ latitude, longitude }) => {
     <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
       <h2 className="text-xl font-bold mb-4">Current Weather</h2>
       <div className="space-y-2">
-        <div className="flex justify-between">
+        {/* <div className="flex justify-between">
           <span className="text-zinc-400">Location:</span>
           <span>{weatherData.location}</span>
-        </div>
+        </div> */}
         <div className="flex justify-between">
           <span className="text-zinc-400">Temperature:</span>
           <span>{weatherData.currentWeather.temperature}°C</span>
