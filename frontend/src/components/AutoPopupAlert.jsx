@@ -1,31 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Snackbar, Button, Alert } from '@mui/material';
+import { Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const AutoPopupAlert = () => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true); // Always open initially
   const navigate = useNavigate();
 
-  // This will trigger the notification automatically after the component mounts
   useEffect(() => {
-    setOpen(true); // Open the notification
+    setOpen(true); // Ensures it remains open every time the component mounts
   }, []);
-
-  // This handles the user click event on the notification
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const handleNavigate = () => {
     navigate('/alert');
-    setOpen(false); // Close the notification after navigating
   };
 
   return (
     <Snackbar
       open={open}
-      autoHideDuration={6000} // Auto-close after 6 seconds
-      onClose={handleClose}
+      onClose={() => setOpen(true)} // Prevent closing
       anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} // Position the Snackbar
     >
       <Alert 
