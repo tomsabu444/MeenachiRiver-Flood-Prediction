@@ -31,7 +31,7 @@ const Detail = () => {
   const [predictedData, setPredictedData] = useState([]);
   const [metadataError, setMetadataError] = useState(null);
   const [chartError, setChartError] = useState(null);
-  const [selectedRange, setSelectedRange] = useState("2"); // Default: 10 Days
+  const [selectedRange, setSelectedRange] = useState("1"); // Default: 1 Days
 
   // Function to fetch data based on selected range
   const fetchData = async (range) => {
