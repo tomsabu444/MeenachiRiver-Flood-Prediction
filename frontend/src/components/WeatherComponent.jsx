@@ -62,14 +62,14 @@ const Weather = ({ latitude, longitude }) => {
           <span className="text-zinc-400">Humidity:</span>
           <span>{weatherData.currentWeather.humidity}%</span>
         </div>
-        <div className="flex justify-between">
+        {/* <div className="flex justify-between">
           <span className="text-zinc-400">Sunrise:</span>
           <span>{weatherData.currentWeather.sunrise}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-zinc-400">Sunset:</span>
           <span>{weatherData.currentWeather.sunset}</span>
-        </div>
+        </div> */}
       </div>
     </div>
   );
