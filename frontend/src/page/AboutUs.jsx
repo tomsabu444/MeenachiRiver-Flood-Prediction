@@ -13,6 +13,20 @@ import iotImage from '../assets/About/i2.jpeg';
 import iotImage1 from '../assets/About/i22.jpeg';
 import iImage from '../assets/About/si.jpeg';
 import iImage1 from '../assets/About/si1.jpeg';
+import kImage from '../assets/About/k1.jpeg';
+import kImage1 from '../assets/About/k.jpeg';
+import aImage from '../assets/About/a.png';
+import aImage1 from '../assets/About/a1.png';
+import sImage from '../assets/About/sr.jpeg';
+import sImage1 from '../assets/About/sr1.jpeg';
+import pImage from '../assets/About/p.png';
+import alertImage from '../assets/About/al.png';
+import alertImage1 from '../assets/About/al1.jpeg';
+import pImage1 from '../assets/About/p1.png';
+import cImage from '../assets/About/c.jpeg';
+import cImage1 from '../assets/About/c1.jpeg';
+import eImage from '../assets/About/e.jpeg';
+import eImage1 from '../assets/About/e1.jpeg';
 
 function AboutUs() {
   return (
@@ -198,6 +212,171 @@ function AboutUs() {
               <img 
                 src={iImage1} 
                 alt="Future Hope" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+            </div>
+          </div>
+          <div className="relative flex flex-col md:flex-row-reverse items-center justify-center gap-6 lg:gap-12 animate-fade-up animation-delay-200">
+            <div className="w-14 h-14 bg-fuchsia-500 rounded-full flex items-center justify-center z-10 shadow-lg transform hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl font-bold">6</span>
+            </div>
+            <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-fuchsia-500/20 transition-shadow duration-300">
+              <h2 className="text-2xl lg:text-3xl font-bold text-fuchsia-400 mb-3">Tech Alchemy</h2>
+              <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
+                IoT sensors across Kidangoor, Theekoy, Cheripadu, Pala, and Perror feed real-time data into our 93% accurate ML flood prediction engine.
+              </p>
+            </div>
+            
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              <img 
+                src={aImage} 
+                alt="Alert Flash" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={aImage1} 
+                alt="Warning UI" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+            </div>
+          </div>
+          <div className="relative flex flex-col md:flex-row items-center justify-center gap-6 lg:gap-12 animate-fade-up animation-delay-800">
+            <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center z-10 shadow-lg transform hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl font-bold">7</span>
+            </div>
+            <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-amber-500/20 transition-shadow duration-300">
+              <h2 className="text-2xl lg:text-3xl font-bold text-amber-400 mb-3">Our Vision</h2>
+              <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
+                We're here to save lives, boost resilience, and redefine flood management for vulnerable regions across the globe.
+              </p>
+            </div>
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              <img 
+                src={sImage} 
+                alt="Community" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={sImage1} 
+                alt="Future Hope" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+            </div>
+          </div>
+          <div className="relative flex flex-col md:flex-row-reverse items-center justify-center gap-6 lg:gap-12 animate-fade-up animation-delay-200">
+            <div className="w-14 h-14 bg-fuchsia-500 rounded-full flex items-center justify-center z-10 shadow-lg transform hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl font-bold">6</span>
+            </div>
+            <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-fuchsia-500/20 transition-shadow duration-300">
+              <h2 className="text-2xl lg:text-3xl font-bold text-fuchsia-400 mb-3">Tech Alchemy</h2>
+              <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
+                IoT sensors across Kidangoor, Theekoy, Cheripadu, Pala, and Perror feed real-time data into our 93% accurate ML flood prediction engine.
+              </p>
+            </div>
+            
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              <img 
+                src={kImage} 
+                alt="Alert Flash" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={kImage1} 
+                alt="Warning UI" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+            </div>
+          </div>
+          <div className="relative flex flex-col md:flex-row items-center justify-center gap-6 lg:gap-12 animate-fade-up animation-delay-800">
+            <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center z-10 shadow-lg transform hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl font-bold">7</span>
+            </div>
+            <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-amber-500/20 transition-shadow duration-300">
+              <h2 className="text-2xl lg:text-3xl font-bold text-amber-400 mb-3">Our Vision</h2>
+              <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
+                We're here to save lives, boost resilience, and redefine flood management for vulnerable regions across the globe.
+              </p>
+            </div>
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              <img 
+                src={pImage} 
+                alt="Community" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={pImage1} 
+                alt="Future Hope" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+            </div>
+          </div>
+          <div className="relative flex flex-col md:flex-row-reverse items-center justify-center gap-6 lg:gap-12 animate-fade-up animation-delay-200">
+            <div className="w-14 h-14 bg-fuchsia-500 rounded-full flex items-center justify-center z-10 shadow-lg transform hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl font-bold">6</span>
+            </div>
+            <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-fuchsia-500/20 transition-shadow duration-300">
+              <h2 className="text-2xl lg:text-3xl font-bold text-fuchsia-400 mb-3">Tech Alchemy</h2>
+              <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
+                IoT sensors across Kidangoor, Theekoy, Cheripadu, Pala, and Perror feed real-time data into our 93% accurate ML flood prediction engine.
+              </p>
+            </div>
+            
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              <img 
+                src={cImage} 
+                alt="Alert Flash" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={cImage1} 
+                alt="Warning UI" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+            </div>
+          </div>
+          <div className="relative flex flex-col md:flex-row items-center justify-center gap-6 lg:gap-12 animate-fade-up animation-delay-800">
+            <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center z-10 shadow-lg transform hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl font-bold">7</span>
+            </div>
+            <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-amber-500/20 transition-shadow duration-300">
+              <h2 className="text-2xl lg:text-3xl font-bold text-amber-400 mb-3">Our Vision</h2>
+              <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
+                We're here to save lives, boost resilience, and redefine flood management for vulnerable regions across the globe.
+              </p>
+            </div>
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              <img 
+                src={eImage} 
+                alt="Community" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={eImage1} 
+                alt="Future Hope" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+            </div>
+          </div>
+          <div className="relative flex flex-col md:flex-row-reverse items-center justify-center gap-6 lg:gap-12 animate-fade-up animation-delay-200">
+            <div className="w-14 h-14 bg-fuchsia-500 rounded-full flex items-center justify-center z-10 shadow-lg transform hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl font-bold">6</span>
+            </div>
+            <div className="bg-gray-800/80 backdrop-blur-md p-6 rounded-xl shadow-2xl max-w-sm lg:max-w-md hover:shadow-fuchsia-500/20 transition-shadow duration-300">
+              <h2 className="text-2xl lg:text-3xl font-bold text-fuchsia-400 mb-3">Tech Alchemy</h2>
+              <p className="text-gray-200 text-sm lg:text-base leading-relaxed">
+                IoT sensors across Kidangoor, Theekoy, Cheripadu, Pala, and Perror feed real-time data into our 93% accurate ML flood prediction engine.
+              </p>
+            </div>
+            
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              <img 
+                src={alertImage} 
+                alt="Alert Flash" 
+                className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
+              />
+              <img 
+                src={alertImage1} 
+                alt="Warning UI" 
                 className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-center"
               />
             </div>
