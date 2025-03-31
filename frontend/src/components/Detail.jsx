@@ -18,7 +18,12 @@ const theme = createTheme({
 
 const Detail = () => {
   const { nodeId } = useParams();
-  const { fetchNodeMetaDataById, fetchNodeChartDataById, fetchPredictedDataById, loading } = useApiCalls();
+  const {
+    fetchNodeMetaDataById,
+    fetchNodeChartDataById,
+    fetchPredictedDataById,
+    loading,
+  } = useApiCalls();
 
   // Define state variables
   const [nodeData, setNodeData] = useState(null);
@@ -26,7 +31,7 @@ const Detail = () => {
   const [predictedData, setPredictedData] = useState([]);
   const [metadataError, setMetadataError] = useState(null);
   const [chartError, setChartError] = useState(null);
-  const [selectedRange, setSelectedRange] = useState("2"); // Default: 10 Days
+  const [selectedRange, setSelectedRange] = useState("1"); // Default: 1 Days
 
   // Function to fetch data based on selected range
   const fetchData = async (range) => {
@@ -36,45 +41,48 @@ const Detail = () => {
     setChartError(null);
 
     try {
-        // Fetch Node Metadata
-        const metaDataResponse = await fetchNodeMetaDataById(nodeId);
-        if (metaDataResponse?.data) {
-            setNodeData(metaDataResponse.data);
+      // Fetch Node Metadata
+      const metaDataResponse = await fetchNodeMetaDataById(nodeId);
+      if (metaDataResponse?.data) {
+        setNodeData(metaDataResponse.data);
+      } else {
+        setMetadataError("No metadata available for this node.");
+      }
+
+      // Fetch Actual Water Levels based on selected range
+      const actualResponse = await fetchNodeChartDataById(nodeId, range);
+      if (actualResponse?.data) {
+        setActualData(actualResponse.data);
+      }
+
+      // Fetch Predicted Water Levels (Handle 404 gracefully)
+      try {
+        const predictedResponse = await fetchPredictedDataById(nodeId, range);
+        if (predictedResponse?.data) {
+          setPredictedData(predictedResponse.data);
+        }
+      } catch (error) {
+        if (error.response?.status === 404) {
+          console.warn(
+            "🔍 Prediction data not found (404). Showing only actual data."
+          );
+          setPredictedData([]); // Ensure it's empty, but don't show an error
         } else {
-            setMetadataError("No metadata available for this node.");
+          setChartError("Failed to load prediction data.");
         }
+      }
 
-        // Fetch Actual Water Levels based on selected range
-        const actualResponse = await fetchNodeChartDataById(nodeId, range);
-        if (actualResponse?.data) {
-            setActualData(actualResponse.data);
-        }
-
-        // Fetch Predicted Water Levels (Handle 404 gracefully)
-        try {
-            const predictedResponse = await fetchPredictedDataById(nodeId, range);
-            if (predictedResponse?.data) {
-                setPredictedData(predictedResponse.data);
-            }
-        } catch (error) {
-            if (error.response?.status === 404) {
-                console.warn("🔍 Prediction data not found (404). Showing only actual data.");
-                setPredictedData([]); // Ensure it's empty, but don't show an error
-            } else {
-                setChartError("Failed to load prediction data.");
-            }
-        }
-
-        // If both actual & predicted data are missing, set chart error
-        if ((!actualResponse?.data || actualResponse.data.length === 0) &&
-            predictedData.length === 0) {
-            setChartError("No actual or predicted water level data found.");
-        }
+      // If both actual & predicted data are missing, set chart error
+      if (
+        (!actualResponse?.data || actualResponse.data.length === 0) &&
+        predictedData.length === 0
+      ) {
+        setChartError("No actual or predicted water level data found.");
+      }
     } catch (error) {
-        setChartError("Failed to load chart data.");
+      setChartError("Failed to load chart data.");
     }
-};
-
+  };
 
   // Fetch data on initial render and when selectedRange changes
   useEffect(() => {
@@ -133,13 +141,17 @@ const Detail = () => {
                 onChange={(e) => setSelectedRange(e.target.value)}
                 label="Time Range"
               >
+                <MenuItem value="3h">Last 3 Hours</MenuItem>
+                <MenuItem value="6h">Last 6 Hours</MenuItem> 
+                <MenuItem value="12h">Last 12 Hours</MenuItem>
+                <MenuItem value="1">1 Day</MenuItem>
                 <MenuItem value="2">2 Days</MenuItem>
                 <MenuItem value="5">5 Days</MenuItem>
                 <MenuItem value="10">10 Days</MenuItem>
                 <MenuItem value="20">20 Days</MenuItem>
-                <MenuItem value="1">1 Month</MenuItem>
-                <MenuItem value="3">3 Months</MenuItem>
-                <MenuItem value="6">6 Months</MenuItem>
+                <MenuItem value="30">1 Month</MenuItem>
+                <MenuItem value="90">3 Months</MenuItem>
+                <MenuItem value="180">6 Months</MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -149,7 +161,10 @@ const Detail = () => {
               <p className="text-yellow-400">{chartError}</p>
             </div>
           ) : actualData.length > 0 || predictedData.length > 0 ? (
-            <DetailChart actualData={actualData} predictedData={predictedData} />
+            <DetailChart
+              actualData={actualData}
+              predictedData={predictedData}
+            />
           ) : (
             <div className="bg-slate-800 p-4 rounded-lg text-center">
               <p className="text-yellow-400">No chart data available.</p>

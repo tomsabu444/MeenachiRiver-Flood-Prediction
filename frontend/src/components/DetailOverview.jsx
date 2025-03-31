@@ -1,30 +1,29 @@
 import React from "react";
+import Weather from "./WeatherComponent";
 
-// Function to format timestamp to IST time
 const formatDateTime = (timestamp) => {
-    if (!timestamp) return "N/A";
+  if (!timestamp) return "N/A";
 
-    const date = new Date(timestamp);
-    
-    if (isNaN(date.getTime())) {
-        return "Invalid Date";
-    }
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
 
-    return new Intl.DateTimeFormat("en-US", {
-        timeZone: "Asia/Kolkata", // Converts to IST
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true, // 12-hour format
-    }).format(date);
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }).format(date);
 };
 
 const DetailOverview = ({ nodeData }) => {
   return (
-    <div className="grid md:grid-cols-2 gap-6">
+    <div className="grid md:grid-cols-3 gap-6">
       {/* Current Status Section */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
         <h2 className="text-xl font-bold mb-4">Current Status</h2>
@@ -48,6 +47,9 @@ const DetailOverview = ({ nodeData }) => {
         </div>
       </div>
 
+      {/* Weather Section */}
+      <Weather latitude={nodeData.latitude} longitude={nodeData.longitude} />
+
       {/* Warning Specifications Section */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
         <h2 className="text-xl font-bold mb-4">Warning Specifications</h2>
@@ -67,8 +69,8 @@ const DetailOverview = ({ nodeData }) => {
         </div>
       </div>
 
-      {/* Predicted Water Level Section */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 md:col-span-2">
+      {/* Predicted Water Level Section (Full Width) */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 md:col-span-3">
         <h2 className="text-xl font-bold mb-4">Latest Predicted Data</h2>
         <div className="space-y-2">
           <div className="flex justify-between">

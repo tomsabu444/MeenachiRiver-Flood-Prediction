@@ -92,12 +92,32 @@ const useApiCalls = () => {
     }
   }, []);
 
+  // 🌧️ Fetch weather details (current + next 24 hours) by latitude and longitude
+  const fetchWeatherByCoords = useCallback(async (latitude, longitude) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${SERVER_BASE_URL}/v1/weather/${latitude}/${longitude}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        `Failed to fetch weather data for Lat: ${latitude}, Lon: ${longitude}:`,
+        error
+      );
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     fetchNodeMetaData,
     fetchNodeMetaDataById,
     fetchNodeChartDataById,
-    fetchPredictedDataById, // Added prediction API
+    fetchPredictedDataById,
     postAlertPreferences,
+    fetchWeatherByCoords,
     loading,
   };
 };
