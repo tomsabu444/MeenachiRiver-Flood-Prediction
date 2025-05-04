@@ -12,11 +12,12 @@ if not MONGODB_URL:
     sys.exit(1)
 
 DB_NAME = "iot-data"  # Database name
-NODE_IDS = ["kidangoor-004", "poonjar-003"]
 
 # --- Connect to MongoDB ---
 client = MongoClient(MONGODB_URL)
 db = client[DB_NAME]
+metadata_collection = db['nodemetadatas']
+NODE_IDS = metadata_collection.distinct("nodeId")
 node_data_collection = db['iotnodedatas']  # Ensure this matches your collection name
 forecast_collection = db['predicted-datas']  # Collection to store forecast results
 
